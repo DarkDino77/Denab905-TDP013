@@ -1,2 +1,2 @@
 # Etikuppgift
-Lägg här upp era etikrapporter i PDF-format.
+Lägg upp era etikrapporter i PDF-format här.
