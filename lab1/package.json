@@ -2,17 +2,18 @@
   "name": "lab1",
   "version": "1.0.0",
   "description": "There should be a `README.md` with instructions for running and configuring each of the labs and the project.",
-  "type": "module", 
+  "type": "module",
   "main": "pathing.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon index.js"
+    "start": "nodemon pathing.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "express": "^4.19.2",
+    "i": "^0.3.7",
     "istanbul": "^0.4.5",
     "mocha": "^10.7.3",
     "mongodb": "^6.8.0",
