@@ -15,10 +15,11 @@ connectToDatabase(config, () => {
 
 
 async function run(){
-   await db.dropCollection("enteris");
 
-   await save_message('dennis', 'hej');
-   await save_message('elvin', 'då');
+  
+   await drop_all_collections();
+   await save_message('hej');
+   await save_message('då');
 
    //await read_message(0);
    //await set_status(0,true)
@@ -26,19 +27,38 @@ async function run(){
    //await get_all_messages();
 }
 
-let id_counter = 0;
-function get_id()
-{
-    let id = id_counter;
-    id_counter++;
-    return id;
+async function drop_all_collections() {
+    await db.dropCollection("enteris");
+    await db.dropCollection("id");
 }
 
-async function save_message(author, msg) {
-    let entry = { id : get_id(),
-        "author": author,
+async function get_id()
+{
+    if (await db.collection("id").countDocuments() === 0){
+        let id = {"id": 0};
+        await db.collection("id").insertOne(id);
+        return 0;
+    }
+    else{
+        let id = await db.collection("id").findOne({});
+        id.id++;
+        await db.collection("id").updateOne({}, {$set: {"id": id.id}})
+        return id.id;
+    }
+}
+
+async function id_exists(id)
+{
+    let test = await db.collection("id").findOne({});
+    if (id <= test.id && id >= 0){ return true;}
+    return false;
+
+}
+
+async function save_message(msg) {
+    let entry = { id : await get_id(),
         "message": msg,
-        "time": 0,
+        "time": Date.now(),
         "read": false
     };
     //console.log("Saved message ");
@@ -67,4 +87,4 @@ async function set_status(id, status) {
 }
 
 // Close the database connection after 2 seconds.
-export { run, set_status, get_all_messages, read_message, save_message }
+export { run, set_status, get_all_messages, read_message, save_message, id_exists }

@@ -28,7 +28,6 @@ function invalid_method(res)
 {
     res.status(405).send("405 - Invalid method");
 }
-
 function invalid_parameters(res)
 {
     res.status(400).send("400 - Invalid parameters");
@@ -36,15 +35,28 @@ function invalid_parameters(res)
 
 // Behövs för att parsa JSON-requests 
 app.use(express.json());
+app.use((err, req, res, next) => {
+    invalid_parameters(res)
+});
 
 app.get('/messages', async (req, res) => {
     let msgs = await db.get_all_messages();
     res.send(msgs);
 });
 
-app.post('/messages', (req, res) => {
-    console.log(req.body.message)
-    res.sendStatus(200);
+app.post('/messages', async (req, res) => {
+    //console.log(req.body.message)
+    // lägg till try catch här
+    if (req.body.message === undefined)
+    {
+        invalid_parameters(res)
+    }
+    else
+    {
+        await db.save_message(req.body.message)
+        res.sendStatus(200);
+    }
+
 });
 
 app.all('/messages', async (req, res) => {
@@ -52,14 +64,36 @@ app.all('/messages', async (req, res) => {
 });
 
 app.get('/messages/:id', async (req, res) => {
-    let id = parseInt(req.params.id);
+    // lägg till try catch här
+    let id = parseInt(req.params.id); // throw
     let msg = await db.read_message(id);
     res.send(msg)
 });
 
 app.patch('/messages/:id', async (req, res) => {
-    console.log(req.body.read);
-    res.sendStatus(200);
+    // lägg till try catch här
+    try{
+        if (req.body.read === undefined){throw new Error("");
+        }
+        let read = false
+        if (req.body.read === "true") {
+            read = true;
+        } else if (req.body.read === "false") {
+            read = false;
+        } else {
+           throw errror;
+        } 
+        let id = parseInt(req.params.id)
+        console.log(id)
+        console.log(await db.id_exists(id))
+        if(isNaN(id) || await db.id_exists(id) === false){throw error;}
+        await db.set_status(id, read);
+        res.sendStatus(200);
+    } 
+    catch(error)
+    {
+        invalid_parameters(res)
+    }
 });
 
 app.all('/messages/:id', async (req, res) => {
