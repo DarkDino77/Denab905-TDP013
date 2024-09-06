@@ -4,9 +4,6 @@ There should be a `README.md` with instructions for running and configuring each
 
 ## Example
 
-## Frågor
-ska vi returnera messages som en array eller individuella JSON-objekt när man hämtar alla meddelanden?
-
 ### Usage
 Run the code using:
 ```bash

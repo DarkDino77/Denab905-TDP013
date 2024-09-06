@@ -18,8 +18,8 @@ async function run(){
 
   
    await drop_all_collections();
-   await save_message('hej');
-   await save_message('då');
+   //await save_message('hej');
+   //await save_message('då');
 
    //await read_message(0);
    //await set_status(0,true)
