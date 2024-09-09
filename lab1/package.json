@@ -5,13 +5,15 @@
   "type": "module",
   "main": "app.js",
   "scripts": {
-    "test": "mocha --timeout=30s --exit ",
-    "start": "nodemon app.js"
+    "test": "c8 mocha --timeout=30s --exit ",
+    "start": "nodemon app.js",
+    "istanbul": "nyc mocha"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "c8": "^10.1.2",
     "express": "^4.19.2",
     "express-mongo-sanitize": "^2.2.0",
     "i": "^0.3.7",
@@ -21,5 +23,8 @@
     "mongodb": "^6.8.0",
     "nodemon": "^3.1.4",
     "superagent": "^10.1.0"
+  },
+  "devDependencies": {
+    "nyc": "^17.0.0"
   }
 }

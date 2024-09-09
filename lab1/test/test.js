@@ -194,18 +194,17 @@ describe('database api tests', () => {
             .send({ "abc": "heh"})
             .end((err, res) => {
                 assert.equal(res.statusCode, 400);
-
+                
                 done(); 
             })
     });
 
-    it('POST /messages with invalid method should return 405', (done) => {
+    it('/messages with invalid method should return 405', (done) => {
         superagent
             .patch(`${api}/messages`)
             .send({ "abc": "heh"})
             .end((err, res) => {
                 assert.equal(res.statusCode, 405);
-
                 done(); 
             })
     });
@@ -279,33 +278,17 @@ describe('database api tests', () => {
         
     });
 
-    it('POST /messages with HTML are sanitized', (done) => {
+    it('POST /messages where message is an object are not allowed', (done) => {
         superagent
             .post(`${api}/messages`)
             .send({ "message": 
-                "<script>console.log('inject');</script>"})
+                {"hej": "hej"}})
             .end((err, res) => {
-                assert.equal(res.statusCode, 200);
+                assert.equal(res.statusCode, 400);
                 done(); 
             })
         
     });
-
-    it('GET /messages/2 should now return a message marked as " not read"', 
-        (done) => {
-            superagent
-                .get(`${api}/messages/2`)
-                .end((err, res) => {
-                    if (err) done(err);
-                    const msg = res.body;
-                    assert.equal(msg.message, "console.log('inject');");
-                    assert.equal(msg.id, 2);
-                    assert.equal(msg.read, false);
-
-                    done();
-                });
-    });
-
 
     after((done) => {
         server.close(() => done());
