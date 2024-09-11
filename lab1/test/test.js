@@ -198,6 +198,15 @@ describe('database api tests', () => {
                 done();
             });
     });
+
+    it('GET /messages/a should return 400 for invalid parameter', (done) => {
+        superagent
+            .get(`${api}/messages/a`)
+            .end((err, res) => {
+                assert.equal(res.statusCode, 400);
+                done();
+            });
+    });
     
     it('PATCH /messages/999 should return 404 for invalid ID', (done) => {
         superagent
@@ -248,7 +257,15 @@ describe('database api tests', () => {
             });
     });
     
-
+    it('PATCH /messages/a with invalid id parameter should return 400', (done) => {
+        superagent
+            .patch(`${api}/messages/a`)
+            .send({ "read": "true" })
+            .end((err, res) => {
+                assert.equal(res.statusCode, 400);
+                done();
+            });
+    });
     //slut
 
     it('POST /messages with invalid parameters should return 400', (done) => {

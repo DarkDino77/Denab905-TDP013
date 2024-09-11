@@ -1,5 +1,5 @@
-import { connectToDatabase, closeDatabaseConnection, getDatabaseConnection } from './mongoUtils.js'
-
+import { connectToDatabase, getDatabaseConnection } from './mongoUtils.js'
+//closeDatabaseConnection, 
 let config = {
     host: 'localhost:27017',
     db: 'mongo-example-db'
@@ -17,7 +17,7 @@ connectToDatabase(config, () => {
 
 async function run(){
 
-  
+
    await drop_all_collections();
    //await save_message('hej');
    //await save_message('då');

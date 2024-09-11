@@ -45,14 +45,22 @@ function server_error(res) {
 // Behövs för att parsa JSON-requests 
 app.use(express.json());
 
+//ska vi ta bort denna 
 app.use((err, req, res, next) => {
     invalid_parameters(res)
 });
 
 app.get('/messages', async (req, res) => {
-    let msgs = await db.get_all_messages();
 
-    res.send(msgs);
+    try {
+
+        let msgs = await db.get_all_messages();
+        res.send(msgs);
+
+    } catch (error) {
+        server_error(res);
+    }
+
 });
 
 app.post('/messages', async (req, res) => {
@@ -83,9 +91,6 @@ app.post('/messages', async (req, res) => {
                 server_error(res);
             }
     }
-
-  
-
 });
 
 app.all('/messages', async (req, res) => {

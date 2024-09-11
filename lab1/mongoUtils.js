@@ -23,18 +23,18 @@ function connectToDatabase(config, callback){
 	callback && callback();
 }
 
-/**
- * Close the the active database connection.
- * 
- * @param {Object} callback 
- */
-function closeDatabaseConnection(callback){
-	if(client){
-		client.close();
-		db = null;
-	}
-	callback && callback();
-}
+// /**
+//  * Close the the active database connection.
+//  * 
+//  * @param {Object} callback 
+//  */
+// function closeDatabaseConnection(callback){
+// 	if(client){
+// 		client.close();
+// 		db = null;
+// 	}
+// 	callback && callback();
+// }
 
 /**
  * Get the database connection.
@@ -45,5 +45,6 @@ function getDatabaseConnection(){
 	return db;
 }
 
-export { connectToDatabase, closeDatabaseConnection, getDatabaseConnection };
+export { connectToDatabase,  getDatabaseConnection };
 
+//loseDatabaseConnection,
