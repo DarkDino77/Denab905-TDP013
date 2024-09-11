@@ -45,7 +45,7 @@ function server_error(res) {
 // Behövs för att parsa JSON-requests 
 app.use(express.json());
 
-//ska vi ta bort denna 
+//ska vi ta bort denna används ej
 app.use((err, req, res, next) => {
     invalid_parameters(res)
 });
@@ -103,9 +103,7 @@ app.get('/messages/:id', async (req, res) => {
         let clean = sanitize(req.params.id);
         let id = parseInt(clean);
         
-        if(isNaN(id) ) {
-            throw new Error("Invalid parameters");
-        }  else if(await db.id_exists(id) === false){
+        if(isNaN(id) || await db.id_exists(id) === false ) {
             throw new Error("Invalid id");
         }
         else {
@@ -114,10 +112,7 @@ app.get('/messages/:id', async (req, res) => {
         }
     } catch (error) {
         // Handle different error types
-        if (error.message === "Invalid parameters") {
-            // console.error("TypeError:", error.message);
-                invalid_parameters(res);
-            } else if (error.message === "Invalid id") {
+             if (error.message === "Invalid id") {
             // console.error("Database Error:", error.message);
                 page_dose_not_exist(res);
             } else {
@@ -150,12 +145,7 @@ app.patch('/messages/:id', async (req, res) => {
         let id = parseInt(clean);
 
         // Testing for valid parameters
-        if(isNaN(id)){
-            throw new Error("Invalid parameters");
-        }
-
-        // Testing if id exist in data base
-        if(await db.id_exists(id) === false){
+        if(isNaN(id) || await db.id_exists(id) === false){
             throw new Error("Invalid id");
         }
 

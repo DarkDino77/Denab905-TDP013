@@ -203,7 +203,7 @@ describe('database api tests', () => {
         superagent
             .get(`${api}/messages/a`)
             .end((err, res) => {
-                assert.equal(res.statusCode, 400);
+                assert.equal(res.statusCode, 404);
                 done();
             });
     });
@@ -262,7 +262,7 @@ describe('database api tests', () => {
             .patch(`${api}/messages/a`)
             .send({ "read": "true" })
             .end((err, res) => {
-                assert.equal(res.statusCode, 400);
+                assert.equal(res.statusCode, 404);
                 done();
             });
     });

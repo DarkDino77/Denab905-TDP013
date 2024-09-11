@@ -1,13 +1,17 @@
 # README
+## Specfication
 
-There should be a `README.md` with instructions for running and configuring each of the labs and the project.
+We are using specifikation 1 for our program
 
-## Example
+## Test
 
-### Usage
-Run the code using:
-```bash
-...
-```
+$ npm test 
 
-Then visit ... in a browaser
+to run mocha test
+
+
+## Run
+
+$ npm start 
+
+to start the program in no demon mode in the 
