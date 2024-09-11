@@ -55,6 +55,7 @@ app.get('/messages', async (req, res) => {
     try {
 
         let msgs = await db.get_all_messages();
+       // console.log(res.json(msgs))
         res.send(msgs);
 
     } catch (error) {
@@ -104,7 +105,7 @@ app.get('/messages/:id', async (req, res) => {
         let id = parseInt(clean);
         
         if(isNaN(id) || await db.id_exists(id) === false ) {
-            throw new Error("Invalid id");
+            throw new Error("Invalid parameters");
         }
         else {
             let msg = await db.read_message(id);
@@ -112,9 +113,9 @@ app.get('/messages/:id', async (req, res) => {
         }
     } catch (error) {
         // Handle different error types
-             if (error.message === "Invalid id") {
+             if (error.message === "Invalid parameters") {
             // console.error("Database Error:", error.message);
-                page_dose_not_exist(res);
+                invalid_parameters(res);
             } else {
             // console.error("General Error:", error.message);
             server_error(res);
@@ -146,7 +147,7 @@ app.patch('/messages/:id', async (req, res) => {
 
         // Testing for valid parameters
         if(isNaN(id) || await db.id_exists(id) === false){
-            throw new Error("Invalid id");
+            throw new Error("Invalid parameters");
         }
 
       //  console.log(read)
@@ -157,9 +158,6 @@ app.patch('/messages/:id', async (req, res) => {
         if (error.message === "Invalid parameters") {
            // console.error("TypeError:", error.message);
             invalid_parameters(res);
-        } else if (error.message === "Invalid id") {
-           // console.error("Database Error:", error.message);
-            page_dose_not_exist(res);
         } else {
            // console.error("General Error:", error.message);
            server_error(res);

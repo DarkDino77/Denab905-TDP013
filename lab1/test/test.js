@@ -20,8 +20,7 @@ describe('database api tests', () => {
                 .end((err, res) => {
                     if (err) done(err);
                     let msgs = res.body;
-
-                    assert.deepEqual(msgs, []);
+                    assert.deepEqual(msgs, {});
 
                     done();
                 });
@@ -94,16 +93,15 @@ describe('database api tests', () => {
         
     });
 
-    it('GET /messages should now return an array with two elements', 
+    it('GET /messages should now return an json with two elements', 
         (done) => {
             superagent
                 .get(`${api}/messages`)
                 .end((err, res) => {
                     if (err) done(err);
                     let msgs = res.body;
-
-                    assert.notEqual(msgs, []);
-                    assert.equal(msgs.length, 2);
+                    assert.notEqual(msgs, {});
+                    assert.equal(Object.keys(msgs).length, 2);
                     
                     assert.equal(msgs[0].message, "Dennis");
                     assert.equal(msgs[0].id, 0);
@@ -194,7 +192,7 @@ describe('database api tests', () => {
         superagent
             .get(`${api}/messages/999`)
             .end((err, res) => {
-                assert.equal(res.statusCode, 404);
+                assert.equal(res.statusCode, 400);
                 done();
             });
     });
@@ -203,7 +201,7 @@ describe('database api tests', () => {
         superagent
             .get(`${api}/messages/a`)
             .end((err, res) => {
-                assert.equal(res.statusCode, 404);
+                assert.equal(res.statusCode, 400);
                 done();
             });
     });
@@ -213,7 +211,7 @@ describe('database api tests', () => {
             .patch(`${api}/messages/999`)
             .send({ "read": "true" })
             .end((err, res) => {
-                assert.equal(res.statusCode, 404);
+                assert.equal(res.statusCode, 400);
                 done();
             });
     });
@@ -262,7 +260,7 @@ describe('database api tests', () => {
             .patch(`${api}/messages/a`)
             .send({ "read": "true" })
             .end((err, res) => {
-                assert.equal(res.statusCode, 404);
+                assert.equal(res.statusCode, 400);
                 done();
             });
     });
@@ -318,8 +316,8 @@ describe('database api tests', () => {
                 .end((err, res) => {
                     if (err) done(err);
                     let msgs = res.body;
-                    assert.notEqual(msgs, []);
-                    assert.equal(msgs.length, 2);
+                    assert.notEqual(msgs, {});
+                    assert.equal(Object.keys(msgs).length, 2);
                     
                     assert.equal(msgs[0].message, "Dennis");
                     assert.equal(msgs[0].id, 0);

@@ -77,8 +77,12 @@ async function read_message(id)
 async function get_all_messages()
 {
     let msgs = await db.collection("enteris").find({}).toArray();
-
-    return msgs;
+    let msgsObject = msgs.reduce((acc, msg, index) => {
+        acc[index] = msg;
+        return acc;
+    }, {});
+    //console.log(msgsObject)
+    return msgsObject;
 
 }
 
