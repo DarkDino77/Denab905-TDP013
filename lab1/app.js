@@ -185,6 +185,8 @@ function start_server(port, callback)
     });
 }
 
-//start_server(3000);
-
 export {start_server}
+// checks that the app.js is the main file that is being ran if so it starts a server connection if not it is ignored
+if (process.argv[1] === new URL(import.meta.url).pathname) {
+    start_server(3000);
+}
