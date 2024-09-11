@@ -188,6 +188,69 @@ describe('database api tests', () => {
                 });
     });
 
+    //Dions nya test elvin kålla igenm
+
+    it('GET /messages/999 should return 404 for invalid ID', (done) => {
+        superagent
+            .get(`${api}/messages/999`)
+            .end((err, res) => {
+                assert.equal(res.statusCode, 404);
+                done();
+            });
+    });
+    
+    it('PATCH /messages/999 should return 404 for invalid ID', (done) => {
+        superagent
+            .patch(`${api}/messages/999`)
+            .send({ "read": "true" })
+            .end((err, res) => {
+                assert.equal(res.statusCode, 404);
+                done();
+            });
+    });
+    
+    it('POST /messages with non-string message should return 400', (done) => {
+        superagent
+            .post(`${api}/messages`)
+            .send({ "message": 12345 })
+            .end((err, res) => {
+                assert.equal(res.statusCode, 400);
+                done();
+            });
+    });
+    
+    it('POST /messages with no message field should return 400', (done) => {
+        superagent
+            .post(`${api}/messages`)
+            .send({ "text": "This is a wrong field" })
+            .end((err, res) => {
+                assert.equal(res.statusCode, 400);
+                done();
+            });
+    });
+    
+    it('PATCH /messages/0 with invalid read status should return 400', (done) => {
+        superagent
+            .patch(`${api}/messages/0`)
+            .send({ "read": "yes" })
+            .end((err, res) => {
+                assert.equal(res.statusCode, 400);
+                done();
+            });
+    });
+    
+    it('GET /non-existent-route should return 404', (done) => {
+        superagent
+            .get(`${api}/non-existent-route`)
+            .end((err, res) => {
+                assert.equal(res.statusCode, 404);
+                done();
+            });
+    });
+    
+
+    //slut
+
     it('POST /messages with invalid parameters should return 400', (done) => {
         superagent
             .post(`${api}/messages`)
@@ -238,7 +301,6 @@ describe('database api tests', () => {
                 .end((err, res) => {
                     if (err) done(err);
                     let msgs = res.body;
-
                     assert.notEqual(msgs, []);
                     assert.equal(msgs.length, 2);
                     
@@ -294,3 +356,5 @@ describe('database api tests', () => {
         server.close(() => done());
     })
 });
+
+
