@@ -10,14 +10,19 @@ To install all required dependencies, run the following command
 
 This command will install all the packages listed in the package.json.
 
-## Test
+## Start the mongo db server first before you run or test the server
+Start MongoDB:
+
+`sudo systemctl start mongod`
+
+### Test
 To run tests using Mocha, execute:
 
 `$ npm test` 
 
 This will initiate all the test cases defined in the test.js file.
 
-## Run
+### Run
 To start the program in development mode (using nodemon), run:
 
 `$ npm start` 

@@ -1,6 +1,8 @@
 import express from 'express';
 import * as db from "./database.js";
 import sanitize from 'mongo-sanitize';
+import { closeDatabaseConnection } from './mongoUtils.js';
+
 const app = express();
 
 /*
@@ -24,13 +26,11 @@ const app = express();
 */
 
 // TODO: flytta dessa till en utils-fil
-function invalid_method(res)
-{
+function invalid_method(res) {
     res.status(405).send("405 - Invalid method");
 }
 
-function invalid_parameters(res)
-{
+function invalid_parameters(res) {
     res.status(400).send("400 - Invalid parameters");
 }
 
@@ -39,7 +39,7 @@ function page_dose_not_exist(res) {
 }
 
 function server_error(res) {
-    res.status(500).json({ error: "Internal Server Error" });
+    res.status(500).send("500 - Internal Server Error");
 }
 
 // Behövs för att parsa JSON-requests 
@@ -52,46 +52,59 @@ app.use((err, req, res, next) => {
 
 app.get('/messages', async (req, res) => {
 
-    try {
 
-        let msgs = await db.get_all_messages();
-       // console.log(res.json(msgs))
-        res.send(msgs);
-
-    } catch (error) {
-        server_error(res);
+    let msgs = await db.get_all_messages();
+    if (!msgs) {
+       return server_error(res);
     }
+    // console.log(res.json(msgs))
+    res.send(msgs);
 
 });
 
 app.post('/messages', async (req, res) => {
     //console.log(req.body.message)
     // lägg till try catch här
+    let msg = sanitize(req.body);
 
-    try {
-        let clean = sanitize(req.body.message);
-        if (clean === undefined || 
-            clean.length <= 0 || 
-            clean.length > 140 || 
-            typeof(clean) !== "string")
-        {
-            throw new Error("Invalid parameters");
-        }
-        else
-        {
-            await db.save_message(clean);
-            res.sendStatus(200);
-        }
-    } catch (error) {
-         // Handle different error types
-         if (error.message === "Invalid parameters") {
-            // console.error("TypeError:", error.message);
-                invalid_parameters(res);
-            } else {
-            // console.error("General Error:", error.message);
-                server_error(res);
-            }
+        
+    let clean = msg.message;
+    if (clean === undefined || 
+        clean.length <= 0 || 
+        clean.length > 140 || 
+        typeof(clean) !== "string")
+    {
+
+        return invalid_parameters(res);
+
+     }
+     if (typeof msg.read !== 'string') {
+        return invalid_parameters(res);
     }
+    // Convert read to a boolean
+    if (['true', "false"].includes(msg.read)) {
+        msg.read = msg.read === 'true';
+        // if (msg.read === "true") {
+        //     msg.read = true
+        // } else {
+        //     msg.read = false
+        // }
+    } else {
+        msg.read = false
+
+    }
+   if (!msg.time && !msg.author) {
+        return invalid_parameters(res);
+    }
+
+    let response = await db.save_message(msg);
+    if(!response)
+    {
+        return server_error
+    }
+    return res.status(200).send(response);
+
+    
 });
 
 app.all('/messages', async (req, res) => {
@@ -100,70 +113,52 @@ app.all('/messages', async (req, res) => {
 
 app.get('/messages/:id', async (req, res) => {
     // lägg till try catch här
-    try {
-        let clean = sanitize(req.params.id);
-        let id = parseInt(clean);
-        
-        if(isNaN(id) || await db.id_exists(id) === false ) {
-            throw new Error("Invalid parameters");
-        }
-        else {
-            let msg = await db.read_message(id);
-            res.send(msg)
-        }
-    } catch (error) {
-        // Handle different error types
-             if (error.message === "Invalid parameters") {
-            // console.error("Database Error:", error.message);
-                invalid_parameters(res);
-            } else {
-            // console.error("General Error:", error.message);
-            server_error(res);
-            }
+
+    let clean = sanitize(req.params.id);
+
+    if ( await db.id_exists(id) === false) {
+         return invalid_parameters(res);
     }
-    
+
+    let msg = await db.read_message(id);
+
+    if (!msg) {
+       return server_error(res);
+    }
+    else {
+       return res.status(200).send(msg);
+    }
 
 });
 
 app.patch('/messages/:id', async (req, res) => {
-    // Testing for valid parameters
-    try{
-        if (req.body.read === undefined || 
-            typeof(req.body.read) !== "string") {
-                throw new Error("Invalid parameters");
-            }
+    console.log("1")
+    // Validate read parameter
+    const read = sanitize( req.body);
 
-        let read = false
-        if (req.body.read === "true") {
-            read = true;
-        } else if (req.body.read === "false") {
-            read = false;
-        } else {
-            throw new Error("Invalid parameters");
-        }
+    if (typeof read !== 'string' || !['true', 'false'].includes(read)) {
+        return invalid_parameters(res);
+    }
 
-        let clean = sanitize(req.params.id);
-        let id = parseInt(clean);
+    // Convert read to a boolean
+    const readStatus = read === 'true';
 
-        // Testing for valid parameters
-        if(isNaN(id) || await db.id_exists(id) === false){
-            throw new Error("Invalid parameters");
-        }
+    // Sanitize and validate id
+    const cleanId = sanitize(req.params.id);
+    if ( !(await db.id_exists(cleanId))) {
+        return invalid_parameters(res);
+    }
 
-      //  console.log(read)
-        await db.set_status(id, read);
-        res.sendStatus(200);
-    } catch (error) {
-        // Handle different error types
-        if (error.message === "Invalid parameters") {
-           // console.error("TypeError:", error.message);
-            invalid_parameters(res);
-        } else {
-           // console.error("General Error:", error.message);
-           server_error(res);
-        }
-    }    
+    // Set message status in the database
+    const msg = await db.set_status(cleanId, readStatus);
+    if (!msg) {
+        return server_error(res);
+    }
+
+    // Success response
+    return res.status(200).send(msg);
 });
+
 
 app.all('/messages/:id', async (req, res) => {
     invalid_method(res);
@@ -174,8 +169,7 @@ app.use((req, res, next) => {
     page_dose_not_exist(res);
 });
 
-function start_server(port, callback)
-{
+function start_server(port, callback) {
     return app.listen(port, () => {
         callback && callback();
         //console.log(`App is running, visit http://localhost:${port}`);
@@ -183,7 +177,12 @@ function start_server(port, callback)
     });
 }
 
-export {start_server}
+function close_server() {
+    closeDatabaseConnection();
+}
+
+export { start_server, close_server }
+
 // checks that the app.js is the main file that is being ran if so it starts a server connection if not it is ignored
 if (process.argv[1] === new URL(import.meta.url).pathname) {
     start_server(3000);

@@ -1,3 +1,4 @@
+//import { resolve } from 'superagent/lib/request-base.js';
 import { connectToDatabase, getDatabaseConnection } from './mongoUtils.js'
 //closeDatabaseConnection, 
 let config = {
@@ -30,46 +31,49 @@ async function run(){
 
 async function drop_all_collections() {
     await db.dropCollection("enteris");
-    await db.dropCollection("id");
+    // await db.dropCollection("id");
 }
 
-async function get_id()
-{
-    if (await db.collection("id").countDocuments() === 0){
-        let id = {"id": 0};
-        await db.collection("id").insertOne(id);
-        return 0;
-    }
-    else{
-        let id = await db.collection("id").findOne({});
-        id.id++;
-        await db.collection("id").updateOne({}, {$set: {"id": id.id}})
-        return id.id;
-    }
-}
+// async function get_id()
+// {
+//     if (await db.collection("id").countDocuments() === 0){
+//         let id = {"id": 0};
+//         await db.collection("id").insertOne(id);
+//         return 0;
+//     }
+//     else{
+//         let id = await db.collection("id").findOne({});
+//         id.id++;
+//         await db.collection("id").updateOne({}, {$set: {"_id": id.id}})
+//         return id.id;
+//     }
+// }
 
 async function id_exists(id)
 {
-    let test = await db.collection("id").findOne({});
-    if (id <= test.id && id >= 0){ return true;}
-    return false;
+    let test = await db.collection("enteris").findOne({"_id":id});
+    return !test;
 
 }
 
 async function save_message(msg) {
-    let entry = { id : await get_id(),
+    /*let entry = { 
+        "author":msg,
         "message": msg,
         "time": Date.now(),
         "read": false
-    };
+    };*/
+    msg.time = Date.now();
+    let msg_insert = await db.collection("enteris").insertOne(msg);
+    let msg_complete = await db.collection("enteris").findOne({"_id" : msg_insert.insertedId})
+    return msg_complete;
     //console.log("Saved message ");
-    await db.collection("enteris").insertOne(entry);
     //console.log(await db.collection("enteris").countDocuments());
 }
 
 async function read_message(id)
 {
-    let msg = await db.collection("enteris").findOne({"id" : id});   
+    let msg = await db.collection("enteris").findOne({"_id" : id});   
     //console.log(`Found ${JSON.stringify(msg, null, 2)}` );
     return msg
 }
@@ -77,17 +81,17 @@ async function read_message(id)
 async function get_all_messages()
 {
     let msgs = await db.collection("enteris").find({}).toArray();
-    let msgsObject = msgs.reduce((acc, msg, index) => {
-        acc[index] = msg;
-        return acc;
-    }, {});
+    if (msgs.length == 0)
+    {
+        msgs = {};
+    }
     //console.log(msgsObject)
-    return msgsObject;
+    return msgs;
 
 }
 
 async function set_status(id, status) {
-    await db.collection("enteris").updateOne({"id":id}, {$set: {"read": status}});
+    await db.collection("enteris").updateOne({"_id":id}, {$set: {"read": status}});
     
 }
 
