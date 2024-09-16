@@ -45,14 +45,7 @@ function server_error(res) {
 // Behövs för att parsa JSON-requests 
 app.use(express.json());
 
-//ska vi ta bort denna används ej
-app.use((err, req, res, next) => {
-    invalid_parameters(res)
-});
-
 app.get('/messages', async (req, res) => {
-
-
     let msgs = await db.get_all_messages();
     if (!msgs) {
        return server_error(res);
@@ -93,15 +86,16 @@ app.post('/messages', async (req, res) => {
         msg.read = false
 
     }
-   if (!msg.time && !msg.author) {
+   if (msg.time === undefined || msg.author === undefined) {
         return invalid_parameters(res);
     }
 
     let response = await db.save_message(msg);
-    if(!response)
+    if(response === null)
     {
-        return server_error
+        return server_error(res);
     }
+
     return res.status(200).send(response);
 
     
@@ -114,16 +108,17 @@ app.all('/messages', async (req, res) => {
 app.get('/messages/:id', async (req, res) => {
     // lägg till try catch här
 
-    let clean = sanitize(req.params.id);
+    let id = sanitize(req.params.id);
 
-    if ( await db.id_exists(id) === false) {
-         return invalid_parameters(res);
+    if(id.length !== 24)
+    {
+        return invalid_parameters(res)
     }
-
+    //console.log(id);
     let msg = await db.read_message(id);
 
     if (!msg) {
-       return server_error(res);
+       return invalid_parameters(res);
     }
     else {
        return res.status(200).send(msg);
@@ -132,31 +127,31 @@ app.get('/messages/:id', async (req, res) => {
 });
 
 app.patch('/messages/:id', async (req, res) => {
-    console.log("1")
     // Validate read parameter
-    const read = sanitize( req.body);
+    const read = sanitize(req.body);
 
-    if (typeof read !== 'string' || !['true', 'false'].includes(read)) {
+    if (typeof read.read !== 'string' || !['true', 'false'].includes(read.read)) {
         return invalid_parameters(res);
     }
-
     // Convert read to a boolean
-    const readStatus = read === 'true';
-
+    const readStatus = read.read === 'true';
     // Sanitize and validate id
     const cleanId = sanitize(req.params.id);
-    if ( !(await db.id_exists(cleanId))) {
-        return invalid_parameters(res);
-    }
+
+    if(cleanId.length !== 24)
+        {
+            return invalid_parameters(res)
+        }
+
 
     // Set message status in the database
     const msg = await db.set_status(cleanId, readStatus);
-    if (!msg) {
-        return server_error(res);
+    console.log(msg);
+    if (msg.modifiedCount === 0) {
+        return invalid_parameters(res);
     }
-
     // Success response
-    return res.status(200).send(msg);
+    res.sendStatus(200);
 });
 
 
@@ -177,11 +172,7 @@ function start_server(port, callback) {
     });
 }
 
-function close_server() {
-    closeDatabaseConnection();
-}
-
-export { start_server, close_server }
+export { start_server }
 
 // checks that the app.js is the main file that is being ran if so it starts a server connection if not it is ignored
 if (process.argv[1] === new URL(import.meta.url).pathname) {

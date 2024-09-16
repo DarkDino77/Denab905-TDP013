@@ -1,5 +1,9 @@
 //import { resolve } from 'superagent/lib/request-base.js';
 import { connectToDatabase, getDatabaseConnection } from './mongoUtils.js'
+import superagent from 'superagent';
+import mongodb from 'mongodb';
+//const { ObjectId } = require('mongodb');
+
 //closeDatabaseConnection, 
 let config = {
     host: 'localhost:27017',
@@ -30,18 +34,7 @@ async function run(){
 async function drop_all_collections() {
     await db.dropCollection("enteris");
     // await db.dropCollection("id");
-}it('GET /messages should return nothing first time', 
-    (done) => {
-        superagent
-            .get(`${api}/messages`)
-            .end((err, res) => {
-                if (err) done(err);
-                let msgs = res.body;
-                assert.deepEqual(msgs, {});
-
-                done();
-            });
-});
+};
 
 // async function get_id()
 // {
@@ -58,12 +51,13 @@ async function drop_all_collections() {
 //     }
 // }
 
-async function id_exists(id)
-{
-    let test = await db.collection("enteris").findOne({"_id":id});
-    return !test;
+// async function id_exists(id)
+// {
+//     id = new mongodb.ObjectId(id)
+//     let test = await db.collection("enteris").findOne({_id:id});
+//     return !test;
 
-}
+// }
 
 async function save_message(msg) {
     /*let entry = { 
@@ -79,10 +73,15 @@ async function save_message(msg) {
     //console.log("Saved message ");
     //console.log(await db.collection("enteris").countDocuments());
 }
-
+    
 async function read_message(id)
 {
-    let msg = await db.collection("enteris").findOne({"_id" : id});   
+    id = new mongodb.ObjectId(id)
+
+    let msg = await db.collection("enteris").findOne({_id : id}); 
+
+    //console.log(msg);
+    //console.log(id);
     //console.log(`Found ${JSON.stringify(msg, null, 2)}` );
     return msg
 }
@@ -90,6 +89,7 @@ async function read_message(id)
 async function get_all_messages()
 {
     let msgs = await db.collection("enteris").find({}).toArray();
+
     if (msgs.length == 0)
     {
         msgs = {};
@@ -100,9 +100,11 @@ async function get_all_messages()
 }
 
 async function set_status(id, status) {
-    await db.collection("enteris").updateOne({"_id":id}, {$set: {"read": status}});
+    id = new mongodb.ObjectId(id)
+    let msg = await db.collection("enteris").updateOne({_id:id}, {$set: {"read": status}});
+    return msg
     
 }
 
 // Close the database connection after 2 seconds.
-export { run, set_status, get_all_messages, read_message, save_message, id_exists }
+export { run, set_status, get_all_messages, read_message, save_message }

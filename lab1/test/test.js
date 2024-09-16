@@ -1,6 +1,6 @@
 import assert from 'assert';
 import superagent from 'superagent';
-import {start_server, close_server} from '../app.js';
+import {start_server } from '../app.js';
 import { run, get_all_messages, save_message } from '../database.js';
 import { getDatabaseConnection } from '../mongoUtils.js';
 
@@ -43,228 +43,80 @@ describe('database api tests', () => {
                 assert.equal(res.body.message, "hej");
                 done(); 
             })
-        
     });
 
-    // it('PATCH /messages/:id should update read status and return 200', async (done) => {
-    //     //const db = getDatabaseConnection();
-
-    //     // Insert a test message first
-    //     const savedMessage = await save_message({
-    //         "author": "Dennis",
-    //         "message": "hej",
-    //         "time": 0,
-    //         "read": "false"
-    //     });
-
-    //     superagent
-    //         .patch(`${api}/messages/${savedMessage._id}`)
-    //         .send({ "read": "true" })
-    //         .end((err, res) => {
-    //             if (err) return done(err);
-    //             assert.equal(res.statusCode, 200);
-
-    //             // Verify that the message has been updated
-    //             superagent
-    //                 .get(`${api}/messages/${savedMessage._id}`)
-    //                 .end((err, res) => {
-    //                     if (err) return done(err);
-    //                     assert.equal(res.body.read, true);
-    //                     done();
-    //                 });
-    //         });
-    // });
-    /*
-            
-    it('GET /messages should return nothing first time', 
-        (done) => {
-            superagent
-                .get(`${api}/messages`)
-                .end((err, res) => {
-                    if (err) done(err);
-                    let msgs = res.body;
-                    assert.deepEqual(msgs, {});
-
-                    done();
-                });
-    });
-
-    it('POST /messages should add "Dennis"', (done) => {
+    it('PATCH /messages/:id to true should update read status and return 200',   (done) => {
         superagent
-            .post(`${api}/messages`)
-            .send({ 
-                "author": "Dennis",
-                "message": "Dennis",
-                "time": 0,
-                "read": "false"
-            })
+        .post(`${api}/messages`)
+        .send({ 
+            "author": "Dennis",
+            "message": "hej",
+            "time": 0,
+            "read": "false"
+        })
+        .end((err, res) => {
+            assert.equal(res.statusCode, 200);
+            assert.equal(res.body.message, "hej");
+            let savedMessage = res.body._id;
+
+        superagent
+            .patch(`${api}/messages/${savedMessage}`)
+            .send({read: "true"})
             .end((err, res) => {
+                if (err) done(err);
                 assert.equal(res.statusCode, 200);
-                assert.equal(res.body.message, "Dennis");
-                done(); 
-            })
-        
+
+                //Verify that the message has been updated
+                superagent
+                    .get(`${api}/messages/${savedMessage}`)
+                    .end((err, res) => {
+                        if (err) done(err);
+                        assert.equal(res.body.read, true);
+                    });
+            });
+
+            done();
+        });
+
+    });
+    
+    it('PATCH /messages/:id to false should update read status and return 200',   (done) => {
+        superagent
+        .post(`${api}/messages`)
+        .send({ 
+            "author": "Dennis",
+            "message": "hej",
+            "time": 0,
+            "read": "true"
+        })
+        .end((err, res) => {
+            assert.equal(res.statusCode, 200);
+            assert.equal(res.body.message, "hej");
+            let savedMessage = res.body._id;
+
+        superagent
+            .patch(`${api}/messages/${savedMessage}`)
+            .send({read: "false"})
+            .end((err, res) => {
+                if (err) done(err);
+                assert.equal(res.statusCode, 200);
+
+                //Verify that the message has been updated
+                superagent
+                    .get(`${api}/messages/${savedMessage}`)
+                    .end((err, res) => {
+                        if (err) done(err);
+                        assert.equal(res.body.read, false);
+                    });
+            });
+
+            done();
+        });
+
     });
 
-    let id;
-    it('GET /messages should now return a message containing "Dennis"', 
-        (done) => {
-            superagent
-                .get(`${api}/messages`)
-                .end((err, res) => {
-                    if (err) done(err);
-
-                    const msg = res.body[0];
-                    assert.equal(msg.message, "Dennis");
-                    assert.equal(msg.read, false);
-                    id = msg._id;
-
-                    superagent
-                        .patch(`${api}/messages/${id}`)
-                        .send({ "read": "true" })
-                        .end((err, res) => {
-                            assert.equal(res.statusCode, 200);
-                        });
-                    
-                    superagent
-                        .get(`${api}/messages/${id}`)
-                        .end((err, res) => {
-                            const msg = res.body;
-                    
-                            assert.equal(msg.message, "Dennis");
-                            assert.equal(msg._id, id);
-                            assert.equal(msg.read, true);
-                        });
-                    done();
-                });
-    });
-
-
-
-    // it('GET /messages/0 should now return a message marked as "read"', 
-    //     (done) => {
-    //         superagent
-    //             .get(`${api}/messages/0`)
-    //             .end((err, res) => {
-    //                 if (err) done(err);
-    //                 const msg = res.body;
-    //                 assert.equal(msg.message, "Dennis");
-    //                 assert.equal(msg.id, 0);
-    //                 assert.equal(msg.read, true);
-
-    //                 done();
-    //             });
-    // });
-
-    // it('POST /messages should add "Elvin"', (done) => {
-    //     superagent
-    //         .post(`${api}/messages`)
-    //         .send({ "message": "Elvin"})
-    //         .end((err, res) => {
-    //             assert.equal(res.statusCode, 200);
-
-    //             done(); 
-    //         })
-        
-    // });
-
-    it('GET /messages should now return an json with two elements', 
-        (done) => {
-            superagent
-                .get(`${api}/messages`)
-                .end((err, res) => {
-                    if (err) done(err);
-                    let msgs = res.body;
-
-                    //assert.notEqual(msgs, {});
-                    //assert.equal(Object.keys(msgs).length, 2);
-                    
-                    assert.equal(msgs[0].message, "Dennis");
-                    //assert.equal(msgs[0].id, 0);
-                    //assert.equal(msgs[0].read, true);
-
-                    //assert.equal(msgs[1].message, "Elvin");
-                    //assert.equal(msgs[1].id, 1);
-                    //assert.equal(msgs[1].read, false);
-
-                    done();
-                });
-    });
-
-    it('GET /messages/1 should return a message containing "Elvin"', 
-        (done) => {
-            superagent
-                .get(`${api}/messages/1`)
-                .end((err, res) => {
-                    if (err) done(err);
-                    const msg = res.body;
-                    assert.equal(msg.message, "Elvin");
-                    assert.equal(msg.id, 1);
-                    assert.equal(msg.read, false);
-
-                    done();
-                });
-    });
-
-    it('PATCH /messages/0 to set status should return 200', 
-        (done) => {
-            superagent
-                .patch(`${api}/messages/0`)
-                .send({ "read": "false" })
-                .end((err, res) => {
-                    if (err) done(err);
-                    assert.equal(res.statusCode, 200);
-
-                    done();
-                });
-    });
-
-    it('PATCH /messages/1 to set status should return 200', 
-        (done) => {
-            superagent
-                .patch(`${api}/messages/1`)
-                .send({ "read": "true" })
-                .end((err, res) => {
-                    if (err) done(err);
-                    assert.equal(res.statusCode, 200);
-
-                    done();
-                });
-    });
-
-    it('GET /messages/0 should now return a message marked as " not read"', 
-        (done) => {
-            superagent
-                .get(`${api}/messages/0`)
-                .end((err, res) => {
-                    if (err) done(err);
-                    const msg = res.body;
-                    assert.equal(msg.message, "Dennis");
-                    assert.equal(msg.id, 0);
-                    assert.equal(msg.read, false);
-
-                    done();
-                });
-    });
-
-    it('GET /messages/1 should now return a message marked as "read"', 
-        (done) => {
-            superagent
-                .get(`${api}/messages/1`)
-                .end((err, res) => {
-                    if (err) done(err);
-                    const msg = res.body;
-                    assert.equal(msg.message, "Elvin");
-                    assert.equal(msg.id, 1);
-                    assert.equal(msg.read, true);
-
-                    done();
-                });
-    });
-
-    //Dions nya test elvin kålla igenm
-
-    it('GET /messages/999 should return 404 for invalid ID', (done) => {
+    
+    it('GET /messages/999 should return 400 for invalid ID', (done) => {
         superagent
             .get(`${api}/messages/999`)
             .end((err, res) => {
@@ -273,25 +125,50 @@ describe('database api tests', () => {
             });
     });
 
-    it('GET /messages/a should return 400 for invalid parameter', (done) => {
+    it('GET /messages/66e7da6a7a012ac151043c7e should return 400 for invalid ID', (done) => {
         superagent
-            .get(`${api}/messages/a`)
+            .get(`${api}/messages/66e7da6a7a012ac151043c7e`)
             .end((err, res) => {
                 assert.equal(res.statusCode, 400);
                 done();
             });
     });
-    
-    it('PATCH /messages/999 should return 404 for invalid ID', (done) => {
+
+    it('PATCH /messages/66e7da6a7a012ac151043c7e should return 400 for invalid ID', (done) => {
+        superagent
+            .patch(`${api}/messages/66e7da6a7a012ac151043c7e`)
+            .send({ read: "true" })
+            .end((err, res) => {
+                assert.equal(res.statusCode, 400);
+                done();
+            });
+    });
+
+    it('PATCH /messages/999 should return 400 for invalid ID', (done) => {
         superagent
             .patch(`${api}/messages/999`)
-            .send({ "read": "true" })
+            .send({ read: "true" })
             .end((err, res) => {
                 assert.equal(res.statusCode, 400);
                 done();
             });
     });
-    
+
+    it('GET /messages should now return a JSON object with 2 elements', 
+        (done) => {
+            superagent
+                .get(`${api}/messages`)
+                .end((err, res) => {
+                    if (err) done(err);
+                    let msgs = res.body;
+
+                    assert.notEqual(msgs, {});
+                    assert.notEqual(msgs.length, 0);
+
+                    done();
+                });
+    });
+
     it('POST /messages with non-string message should return 400', (done) => {
         superagent
             .post(`${api}/messages`)
@@ -301,7 +178,7 @@ describe('database api tests', () => {
                 done();
             });
     });
-    
+
     it('POST /messages with no message field should return 400', (done) => {
         superagent
             .post(`${api}/messages`)
@@ -311,17 +188,32 @@ describe('database api tests', () => {
                 done();
             });
     });
-    
-    it('PATCH /messages/0 with invalid read status should return 400', (done) => {
+
+    it('PATCH /messages/:id with invalid read status should return 400', (done) => {
         superagent
-            .patch(`${api}/messages/0`)
-            .send({ "read": "yes" })
+        .post(`${api}/messages`)
+        .send({ 
+            "author": "Dennis",
+            "message": "hej",
+            "time": 0,
+            "read": "true"
+        })
+        .end((err, res) => {
+            assert.equal(res.statusCode, 200);
+            assert.equal(res.body.message, "hej");
+            let savedMessage = res.body._id;
+
+        superagent
+            .patch(`${api}/messages/${savedMessage}`)
+            .send({read: "yes"})
             .end((err, res) => {
                 assert.equal(res.statusCode, 400);
-                done();
             });
+
+            done();
+        });
     });
-    
+
     it('GET /non-existent-route should return 404', (done) => {
         superagent
             .get(`${api}/non-existent-route`)
@@ -330,17 +222,6 @@ describe('database api tests', () => {
                 done();
             });
     });
-    
-    it('PATCH /messages/a with invalid id parameter should return 400', (done) => {
-        superagent
-            .patch(`${api}/messages/a`)
-            .send({ "read": "true" })
-            .end((err, res) => {
-                assert.equal(res.statusCode, 400);
-                done();
-            });
-    });
-    //slut
 
     it('POST /messages with invalid parameters should return 400', (done) => {
         superagent
@@ -385,28 +266,6 @@ describe('database api tests', () => {
             })
     });
 
-    it('GET /messages should be unchanged', 
-        (done) => {
-            superagent
-                .get(`${api}/messages`)
-                .end((err, res) => {
-                    if (err) done(err);
-                    let msgs = res.body;
-                    assert.notEqual(msgs, {});
-                    assert.equal(Object.keys(msgs).length, 2);
-                    
-                    assert.equal(msgs[0].message, "Dennis");
-                    assert.equal(msgs[0].id, 0);
-                    assert.equal(msgs[0].read, false);
-
-                    assert.equal(msgs[1].message, "Elvin");
-                    assert.equal(msgs[1].id, 1);
-                    assert.equal(msgs[1].read, true);
-
-                    done();
-                });
-    });    
-
     it('POST /messages with message longer than 140 characters returns 400', (done) => {
         superagent
             .post(`${api}/messages`)
@@ -416,7 +275,6 @@ describe('database api tests', () => {
                 assert.equal(res.statusCode, 400);
                 done(); 
             })
-        
     });
 
     it('POST /messages with empty message returns 400', (done) => {
@@ -428,7 +286,6 @@ describe('database api tests', () => {
                 assert.equal(res.statusCode, 400);
                 done(); 
             })
-        
     });
 
     it('POST /messages where message is an object are not allowed', (done) => {
@@ -442,7 +299,69 @@ describe('database api tests', () => {
             })
         
     });
-    */
+
+    it('POST /messages/:id with invalid read key should return 400', (done) => {
+        superagent
+        .post(`${api}/messages`)
+        .send({ 
+            "author": "Dennis",
+            "message": "hej",
+            "time": 0,
+            "read": true
+        })
+        .end((err, res) => {
+            assert.equal(res.statusCode, 400);
+
+            done();
+        });
+    });
+
+    it('POST /messages/:id with read value not set should return 200', (done) => {
+        superagent
+        .post(`${api}/messages`)
+        .send({ 
+            "author": "Dennis",
+            "message": "hej",
+            "time": 0,
+            "read": ""
+        })
+        .end((err, res) => {
+            assert.equal(res.statusCode, 200);
+
+            done();
+        });
+    });
+
+    it('POST /messages/:id without all keys set should return 400', (done) => {
+        superagent
+        .post(`${api}/messages`)
+        .send({ 
+            "message": "hej",
+            "time": 0,
+            "read": ""
+        })
+        .end((err, res) => {
+            assert.equal(res.statusCode, 400);
+
+            done();
+        });
+    });
+
+    it('POST /messages/:id without all keys set should return 400', (done) => {
+        superagent
+        .post(`${api}/messages`)
+        .send({ 
+            "author": "hej",
+            "message": "hej",
+            "read": ""
+        })
+        .end((err, res) => {
+            assert.equal(res.statusCode, 400);
+
+            done();
+        });
+    });
+
     after((done) => {
         server.close(() => done());
     })
