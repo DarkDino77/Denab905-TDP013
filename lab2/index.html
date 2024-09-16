@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="se">
+<head>
+    <title>Hej</title>
+    <link rel="stylesheet" href="./style.css">
+    <script src="./script.js" defer></script>
+</head>
+    
+<body>
+    <form id="post">
+        <div id="Author-div">
+            <label for="Author">Author:</label>
+            <input class="Message" type="text" id="Author" name="Author">
+        </div>
+        <div id="submit">
+            <label for="Message">Message:</label>
+            <input class="Message" type="text" id="Message" name="Message">
+            <input id="button" type="submit" value="Post" onclick="formPost()">
+        </div>
+    </form>
+
+    <p id="error_msg"></p>
+
+    <button onclick="formPost()">Hej</button>
+</body>
+
+</html>
