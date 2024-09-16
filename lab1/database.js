@@ -17,8 +17,6 @@ connectToDatabase(config, () => {
 
 
 async function run(){
-
-
    await drop_all_collections();
    //await save_message('hej');
    //await save_message('då');
@@ -32,7 +30,18 @@ async function run(){
 async function drop_all_collections() {
     await db.dropCollection("enteris");
     // await db.dropCollection("id");
-}
+}it('GET /messages should return nothing first time', 
+    (done) => {
+        superagent
+            .get(`${api}/messages`)
+            .end((err, res) => {
+                if (err) done(err);
+                let msgs = res.body;
+                assert.deepEqual(msgs, {});
+
+                done();
+            });
+});
 
 // async function get_id()
 // {

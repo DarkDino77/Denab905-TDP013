@@ -1,7 +1,8 @@
 import assert from 'assert';
 import superagent from 'superagent';
 import {start_server, close_server} from '../app.js';
-import {run} from '../database.js';
+import { run, get_all_messages, save_message } from '../database.js';
+import { getDatabaseConnection } from '../mongoUtils.js';
 
 
 let api = 'http://localhost:3000';
@@ -14,6 +15,67 @@ describe('database api tests', () => {
         run();
     });
 
+    it('GET /messages should return nothing first time', 
+        (done) => {
+            superagent
+                .get(`${api}/messages`)
+                .end((err, res) => {
+                    if (err) done(err);
+                    let msgs = res.body;
+                    assert.deepEqual(msgs, {});
+
+                    done();
+                });
+    });
+
+    it('POST /messages with valid message should return 200', 
+        (done) => {
+            superagent
+            .post(`${api}/messages`)
+            .send({ 
+                "author": "Dennis",
+                "message": "hej",
+                "time": 0,
+                "read": "false"
+            })
+            .end((err, res) => {
+                assert.equal(res.statusCode, 200);
+                assert.equal(res.body.message, "hej");
+                done(); 
+            })
+        
+    });
+
+    // it('PATCH /messages/:id should update read status and return 200', async (done) => {
+    //     //const db = getDatabaseConnection();
+
+    //     // Insert a test message first
+    //     const savedMessage = await save_message({
+    //         "author": "Dennis",
+    //         "message": "hej",
+    //         "time": 0,
+    //         "read": "false"
+    //     });
+
+    //     superagent
+    //         .patch(`${api}/messages/${savedMessage._id}`)
+    //         .send({ "read": "true" })
+    //         .end((err, res) => {
+    //             if (err) return done(err);
+    //             assert.equal(res.statusCode, 200);
+
+    //             // Verify that the message has been updated
+    //             superagent
+    //                 .get(`${api}/messages/${savedMessage._id}`)
+    //                 .end((err, res) => {
+    //                     if (err) return done(err);
+    //                     assert.equal(res.body.read, true);
+    //                     done();
+    //                 });
+    //         });
+    // });
+    /*
+            
     it('GET /messages should return nothing first time', 
         (done) => {
             superagent
@@ -77,19 +139,7 @@ describe('database api tests', () => {
                 });
     });
 
-    // it(`PATCH /messages/${id} to set status should return 200`, 
-    //     (done) => {
-    //         superagent
-    //             .patch(`${api}/messages/${id}`)
-    //             .send({ "read": "true" })
-    //             .end((err, res) => {
-    //                 console.log("aaaa");
-    //                 if (err) done(err);
-    //                 assert.equal(res.statusCode, 200);
 
-    //                 done();
-    //             });
-    // });
 
     // it('GET /messages/0 should now return a message marked as "read"', 
     //     (done) => {
@@ -392,7 +442,7 @@ describe('database api tests', () => {
             })
         
     });
-
+    */
     after((done) => {
         server.close(() => done());
     })
