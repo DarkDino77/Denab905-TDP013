@@ -20,3 +20,26 @@ body {
     flex-wrap: nowrap;
     justify-content: center;
 }
+
+#message_list {
+    margin: auto;
+    width: 30%;
+}
+
+.post {
+    list-style-type: none;
+    background-color: aqua;
+    gap: 3px;
+    margin-top: 15px;
+}
+
+.post > * {
+    margin-top: 30px;
+}
+
+.middle {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+
+}
