@@ -117,8 +117,7 @@ function add_message(msg, index)
     time.setAttribute("class", "time");
     date = new Date(msg.time);
     date_string = date.getFullYear() + "-" + (date.getMonth() + 1) +
-    "-" + date.getDate() + " " + date.getHours() + ":" +
-    date.getMinutes();
+    "-" + date.getDate() + " " + date.toLocaleTimeString([],{hour12 : false, hour:"2-digit", minute : "2-digit"});
     time.innerHTML = "Posted on " + date_string;
     item.appendChild(time);
 
@@ -146,14 +145,19 @@ document.getElementById('post').addEventListener('submit', function(event) {
             "read": "false"
         }
         
+        console.log(request);
         let messages = get_messages();
         messages.unshift(request);
         save_to_cookie(messages);
+
+        document.getElementById("Message").value = "";
     }
     
     error.textContent = error_msg;
 });
-
+/*
+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+*/
 // function formPost() {
 //     document.getElementById('post').addEventListener('submit', function(event) {
 //         event.preventDefault(); // Prevent the default form submission

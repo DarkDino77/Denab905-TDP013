@@ -20,6 +20,17 @@ body {
     flex-direction: row;
     flex-wrap: nowrap;
     justify-content: space-around;
+    align-items: flex-start;
+    gap: 5px;
+}
+
+.Message {
+    resize: none;
+}
+
+#button {
+    width: 150px;
+    height: 50px;
 }
 
 #Message {
@@ -40,21 +51,35 @@ body {
 }
 .post {
     list-style-type: none;
-    background-color: aqua;
     gap: 3px;
-    margin-top: 15px;
+    margin: 15px;
+    border-style: solid;
+    border-radius: 10px;
+    border-color:aquamarine;
+    background-color:rgb(245, 245, 245);
+}
+
+.message {
+    word-break: break-all;
 }
 
 .post > * {
-    margin-top: 30px;
+    margin: 15px;
 }
 
 .checked {
     background-color: blueviolet;
 }
 
+.read {
+    border-style: solid;
+    border-width: 1px;
+    border-color: rgb(255, 0, 123);
+}
+
 .middle {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+    gap: 50px;
 }
