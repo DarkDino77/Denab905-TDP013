@@ -25,8 +25,15 @@
 */
 
 
-function get_messages()
+async function get_messages()
 {
+    const url = 'http://localhost:3000/messages';
+
+    const response = await fetch(url);
+    let json = await response.json();
+
+    return json;
+    /*
     let cookie = `; ${document.cookie}`.match("messages=([^;]+)");
 
     if (cookie === null) {
@@ -40,17 +47,18 @@ function get_messages()
     }
 
     return result;
+    */
 }
 
-function render_messages() 
+async function render_messages() 
 {
     let list = document.getElementById("message_list");
     list.innerHTML = "";
 
-    let message_list = get_messages();
+    let messages = await get_messages();
 
-    for (let i = 0; i < message_list.length; i++) {
-        add_message(message_list[i], i);
+    for (let i = 0; i < messages.length; i++) {
+        add_message(messages[i], i);
     }
 }
 
@@ -66,11 +74,17 @@ function save_to_cookie(messages)
     render_messages();
 }
 
+async function save_message()
+{
+    // Försök spara meddelandet
+    // Om det misslyckades, visa felmeddelande
+    // Om det lyckades, visa upp meddelandet som returnerades
+    // Hur gör man med index för checkbox när man gör såhär, 
+    // eftersom vi inte ska rendera om hela sidan?
+}
+
 function change_read_status(checkbox)
 {
-    //let id = checkbox.id;
-    console.log(checkbox.id);
-
     let messages = get_messages();
 
     messages[checkbox.id].read = "" + checkbox.checked;
@@ -124,7 +138,7 @@ function add_message(msg, index)
     document.getElementById("message_list").appendChild(item);
 }
 
-document.getElementById('post').addEventListener('submit', function(event) {
+document.getElementById('post').addEventListener('submit', async function(event) {
     event.preventDefault(); // Prevent the default form submission
 
     let author = document.getElementById("Author").value;
@@ -144,32 +158,12 @@ document.getElementById('post').addEventListener('submit', function(event) {
             "time": Date.now(),
             "read": "false"
         }
-        
-        console.log(request);
-        let messages = get_messages();
-        messages.unshift(request);
-        save_to_cookie(messages);
+  
+        // let messages = await get_messages();
+        // messages.unshift(request);
 
         document.getElementById("Message").value = "";
     }
     
     error.textContent = error_msg;
 });
-/*
-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-*/
-// function formPost() {
-//     document.getElementById('post').addEventListener('submit', function(event) {
-//         event.preventDefault(); // Prevent the default form submission
-    
-//         // Log the values to the console (or handle them as needed)
-//         alert("hello");
-//         //console.log('Message:', message);
-//     });
-
-
-//     // let error = document.getElementById("error_msg");
-//     // error.textContent = "Error";
-// }
-
-

@@ -1,6 +1,7 @@
 import express from 'express';
 import * as db from "./database.js";
 import sanitize from 'mongo-sanitize';
+import cors from 'cors';
 import { closeDatabaseConnection } from './mongoUtils.js';
 
 const app = express();
@@ -42,6 +43,14 @@ function server_error(res) {
     res.status(500).send("500 - Internal Server Error");
 }
 
+const corsOptions = {
+	origin: 'http://localhost:8080',
+	optionsSuccessStatus: 200,
+    methods: ['GET', 'POST', 'PUT', 'PATCH']
+};
+
+app.use(cors(corsOptions));
+
 // Behövs för att parsa JSON-requests 
 app.use(express.json());
 
@@ -52,14 +61,12 @@ app.get('/messages', async (req, res) => {
     }
     // console.log(res.json(msgs))
     res.send(msgs);
-
 });
 
 app.post('/messages', async (req, res) => {
     //console.log(req.body.message)
     // lägg till try catch här
     let msg = sanitize(req.body);
-
         
     let clean = msg.message;
     if (clean === undefined || 
@@ -97,8 +104,6 @@ app.post('/messages', async (req, res) => {
     }
 
     return res.status(200).send(response);
-
-    
 });
 
 app.all('/messages', async (req, res) => {
