@@ -12,20 +12,32 @@ body {
     flex-wrap: nowrap;
     justify-content: center;
     column-gap: 10px;
+    width: 35%; 
 }
 
 #submit, #Author-div {
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
-    justify-content: center;
+    justify-content: space-around;
+}
+
+#Message {
+    height: 10vh;
+}
+
+#post > * > * {
+    margin: 10px;
 }
 
 #message_list {
     margin: auto;
     width: 30%;
 }
-
+#error_msg{
+    text-align: center;
+    color: red;
+}
 .post {
     list-style-type: none;
     background-color: aqua;
@@ -37,9 +49,12 @@ body {
     margin-top: 30px;
 }
 
+.checked {
+    background-color: blueviolet;
+}
+
 .middle {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-
 }

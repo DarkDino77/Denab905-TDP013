@@ -49,9 +49,9 @@ function render_messages()
 
     let message_list = get_messages();
 
-    message_list.forEach(element => {
-        add_message(element);
-    });
+    for (let i = 0; i < message_list.length; i++) {
+        add_message(message_list[i], i);
+    }
 }
 
 window.onload = () => {
@@ -62,12 +62,24 @@ function save_to_cookie(messages)
 {
     document.cookie = "username=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
     document.cookie = "messages=" + JSON.stringify(messages);
-    console.log(JSON.stringify(messages));
 
     render_messages();
 }
 
-function add_message(msg)
+function change_read_status(checkbox)
+{
+    //let id = checkbox.id;
+    console.log(checkbox.id);
+
+    let messages = get_messages();
+
+    messages[checkbox.id].read = "" + checkbox.checked;
+
+    save_to_cookie(messages);
+    render_messages();
+}
+
+function add_message(msg, index)
 {
     let item = document.createElement("li");
     item.setAttribute("class", "post");
@@ -88,7 +100,14 @@ function add_message(msg)
 
     let checkbox = document.createElement("input")
     checkbox.setAttribute("type", "checkbox");
-    checkbox.setAttribute("class", "read");
+    checkbox.setAttribute("class", "read form-check-input");
+    checkbox.setAttribute("id", index);
+    checkbox.setAttribute("onchange", "change_read_status(this)");
+
+    if (msg.read === "true") {
+        checkbox.setAttribute("checked", true);
+        item.classList.add("class", "checked");
+    }
 
     middle.appendChild(checkbox);
     
@@ -112,6 +131,7 @@ document.getElementById('post').addEventListener('submit', function(event) {
     let author = document.getElementById("Author").value;
     let msg = document.getElementById("Message").value;
 
+    let error = document.getElementById("error_msg");
     error_msg = ""
     if (msg.length === 0) {
         // Log the values to the console (or handle them as needed)
@@ -125,18 +145,13 @@ document.getElementById('post').addEventListener('submit', function(event) {
             "time": Date.now(),
             "read": "false"
         }
-
+        
         let messages = get_messages();
         messages.unshift(request);
-        console.log(messages);
         save_to_cookie(messages);
-
-        return;
     }
-
-    let error = document.getElementById("error_msg");
-    error.textContent = "Error";
-
+    
+    error.textContent = error_msg;
 });
 
 // function formPost() {
