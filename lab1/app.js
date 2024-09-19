@@ -67,7 +67,6 @@ app.post('/messages', async (req, res) => {
     //console.log(req.body.message)
     // lägg till try catch här
     let msg = sanitize(req.body);
-    console.log(msg);
     
     let clean = msg.message;
     if (clean === undefined || 
@@ -102,7 +101,7 @@ app.post('/messages', async (req, res) => {
     {
         return server_error(res);
     }
-
+    console.log(response);
     return res.status(200).send(response);
 });
 
@@ -134,7 +133,6 @@ app.get('/messages/:id', async (req, res) => {
 app.patch('/messages/:id', async (req, res) => {
     // Validate read parameter
     const read = sanitize(req.body);
-
     if (typeof read.read !== 'string' || !['true', 'false'].includes(read.read)) {
         return invalid_parameters(res);
     }
@@ -142,16 +140,17 @@ app.patch('/messages/:id', async (req, res) => {
     const readStatus = read.read === 'true';
     // Sanitize and validate id
     const cleanId = sanitize(req.params.id);
-
+    
     if(cleanId.length !== 24)
         {
             return invalid_parameters(res)
         }
-
-
-    // Set message status in the database
+        
+        
+        // Set message status in the database
+    console.log(readStatus);
     const msg = await db.set_status(cleanId, readStatus);
-    console.log(msg);
+        
     if (msg.modifiedCount === 0) {
         return invalid_parameters(res);
     }

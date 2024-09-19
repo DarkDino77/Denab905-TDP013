@@ -42,7 +42,7 @@ async function render_messages()
     let messages = await get_messages();
 
     for (let i = 0; i < messages.length; i++) {
-        add_message(messages[i], i);
+        add_message(messages[i], messages[i]._id);
     }
 }
 
@@ -50,22 +50,14 @@ window.onload = () => {
     render_messages();
 }
 
-function save_to_cookie(messages)
-{
-    document.cookie = "username=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-    document.cookie = "messages=" + JSON.stringify(messages);
-
-    render_messages();
-}
-
 async function save_message(author, message)
 {
-    const request = JSON.stringify({
+    const request = {
         "author" : author,
         "message": message,
         "read" :  "false",
         "time" : 0
-    });
+    };
 
     const response = await fetch(path + "/messages", ({
         method: "POST",
@@ -73,28 +65,55 @@ async function save_message(author, message)
             'Accept' : 'application/json',
             'Content-Type': 'application/json'
         },
-        body: request
+        body: JSON.stringify(request)
     }));
 
     // Hur ska man göra med index här?
-    if (response.ok) {
-        render_messages();
+    if (response.status == 200) {
+        add_message(await response.json());
     }
 }
 
-function change_read_status(checkbox)
+async function change_read_status(id)
 {
-    let messages = get_messages();
+    let post = document.getElementById(id);
+    let checkbox = post.getElementsByClassName("read")[0];
 
-    messages[checkbox.id].read = "" + checkbox.checked;
+    const request = {
+        "read" : "" + checkbox.checked
+    };
 
-    save_to_cookie(messages);
-    render_messages();
+    const url = path + "/messages/" + id;
+    const response = await fetch(url, ({
+        method: "PATCH",
+        headers: {
+            'Accept' : 'application/json',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(request)
+    }));
+
+    if (response.status == 200) {
+        // TODO: returnera true
+        if (checkbox.checked) {
+            post.classList.add("class", "checked");
+        } else {
+            post.classList.remove("checked");
+        }
+
+        checkbox.setAttribute("checked", json.read);
+    } 
 }
 
-function add_message(msg, index)
+function add_message(msg)
 {
     let item = document.createElement("li");
+    item.addEventListener('change', async function (event) {
+        event.preventDefault();
+        change_read_status(msg._id);
+    })
+
+    item.setAttribute("id", msg._id);
     item.setAttribute("class", "post");
 
     let author = document.createElement("div");
@@ -114,11 +133,10 @@ function add_message(msg, index)
     let checkbox = document.createElement("input")
     checkbox.setAttribute("type", "checkbox");
     checkbox.setAttribute("class", "read form-check-input");
-    checkbox.setAttribute("id", index);
-    checkbox.setAttribute("onchange", "change_read_status(this)");
+    //checkbox.setAttribute("onchange", `change_read_status("${msg._id}")`);
 
-    if (msg.read === "true") {
-        checkbox.setAttribute("checked", true);
+    if (msg.read === true) {
+        //checkbox.setAttribute("checked", true);
         item.classList.add("class", "checked");
     }
 
@@ -133,8 +151,8 @@ function add_message(msg, index)
     "-" + date.getDate() + " " + date.toLocaleTimeString([],{hour12 : false, hour:"2-digit", minute : "2-digit"});
     time.innerHTML = "Posted on " + date_string;
     item.appendChild(time);
-
-    document.getElementById("message_list").appendChild(item);
+    let list = document.getElementById("message_list")
+    list.insertBefore(item, list.firstChild);
 }
 
 document.getElementById('post').addEventListener('submit', async function(event) {
