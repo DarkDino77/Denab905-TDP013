@@ -67,14 +67,14 @@ app.post('/messages', async (req, res) => {
     //console.log(req.body.message)
     // lägg till try catch här
     let msg = sanitize(req.body);
-        
+    console.log(msg);
+    
     let clean = msg.message;
     if (clean === undefined || 
         clean.length <= 0 || 
         clean.length > 140 || 
         typeof(clean) !== "string")
     {
-
         return invalid_parameters(res);
 
      }

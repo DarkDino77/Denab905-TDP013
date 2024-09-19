@@ -24,30 +24,14 @@
         </li>  
 */
 
+const path = 'http://localhost:3000';
 
 async function get_messages()
 {
-    const url = 'http://localhost:3000/messages';
-
-    const response = await fetch(url);
+    const response = await fetch(path + "/messages");
     let json = await response.json();
 
     return json;
-    /*
-    let cookie = `; ${document.cookie}`.match("messages=([^;]+)");
-
-    if (cookie === null) {
-        return [];
-    }
-
-    let result = JSON.parse(cookie[1]);
-
-    if (Array.isArray(result) === false) {
-        result = [result];
-    }
-
-    return result;
-    */
 }
 
 async function render_messages() 
@@ -74,13 +58,28 @@ function save_to_cookie(messages)
     render_messages();
 }
 
-async function save_message()
+async function save_message(author, message)
 {
-    // Försök spara meddelandet
-    // Om det misslyckades, visa felmeddelande
-    // Om det lyckades, visa upp meddelandet som returnerades
-    // Hur gör man med index för checkbox när man gör såhär, 
-    // eftersom vi inte ska rendera om hela sidan?
+    const request = JSON.stringify({
+        "author" : author,
+        "message": message,
+        "read" :  "false",
+        "time" : 0
+    });
+
+    const response = await fetch(path + "/messages", ({
+        method: "POST",
+        headers: {
+            'Accept' : 'application/json',
+            'Content-Type': 'application/json'
+        },
+        body: request
+    }));
+
+    // Hur ska man göra med index här?
+    if (response.ok) {
+        render_messages();
+    }
 }
 
 function change_read_status(checkbox)
@@ -163,6 +162,10 @@ document.getElementById('post').addEventListener('submit', async function(event)
         // messages.unshift(request);
 
         document.getElementById("Message").value = "";
+
+        save_message(
+            (author.length == 0) ? "Author" : author,
+            msg);
     }
     
     error.textContent = error_msg;
