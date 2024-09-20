@@ -46,7 +46,7 @@ function server_error(res) {
 const corsOptions = {
 	origin: 'http://localhost:8080',
 	optionsSuccessStatus: 200,
-    methods: ['GET', 'POST', 'PUT', 'PATCH']
+    methods: ['GET', 'POST', 'PATCH']
 };
 
 app.use(cors(corsOptions));
@@ -59,12 +59,10 @@ app.get('/messages', async (req, res) => {
     if (!msgs) {
        return server_error(res);
     }
-    // console.log(res.json(msgs))
     res.send(msgs);
 });
 
 app.post('/messages', async (req, res) => {
-    //console.log(req.body.message)
     // lägg till try catch här
     let msg = sanitize(req.body);
     
@@ -101,7 +99,7 @@ app.post('/messages', async (req, res) => {
     {
         return server_error(res);
     }
-    console.log(response);
+
     return res.status(200).send(response);
 });
 
@@ -118,7 +116,7 @@ app.get('/messages/:id', async (req, res) => {
     {
         return invalid_parameters(res)
     }
-    //console.log(id);
+
     let msg = await db.read_message(id);
 
     if (!msg) {
@@ -140,15 +138,12 @@ app.patch('/messages/:id', async (req, res) => {
     const readStatus = read.read === 'true';
     // Sanitize and validate id
     const cleanId = sanitize(req.params.id);
-    
-    if(cleanId.length !== 24)
-        {
-            return invalid_parameters(res)
-        }
+
+    if (cleanId.length !== 24) {
+        return invalid_parameters(res)
+    }
         
-        
-        // Set message status in the database
-    console.log(readStatus);
+    // Set message status in the database
     const msg = await db.set_status(cleanId, readStatus);
         
     if (msg.modifiedCount === 0) {
@@ -171,8 +166,6 @@ app.use((req, res, next) => {
 function start_server(port, callback) {
     return app.listen(port, () => {
         callback && callback();
-        //console.log(`App is running, visit http://localhost:${port}`);
-        //db.run();
     });
 }
 

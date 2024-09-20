@@ -124,6 +124,7 @@ function add_message(msg)
     let middle = document.createElement("div");
     middle.setAttribute("class", "middle");
 
+
     let message = document.createElement("div");
     message.setAttribute("class", "message");
     message.innerHTML = msg.message;
@@ -133,10 +134,9 @@ function add_message(msg)
     let checkbox = document.createElement("input")
     checkbox.setAttribute("type", "checkbox");
     checkbox.setAttribute("class", "read form-check-input");
-    //checkbox.setAttribute("onchange", `change_read_status("${msg._id}")`);
 
     if (msg.read === true) {
-        //checkbox.setAttribute("checked", true);
+        checkbox.setAttribute("checked", true);
         item.classList.add("class", "checked");
     }
 
@@ -163,7 +163,7 @@ document.getElementById('post').addEventListener('submit', async function(event)
 
     let error = document.getElementById("error_msg");
     error_msg = ""
-    if (msg.length === 0) {
+    if (msg.length === 0 || msg.replaceAll(" ","").length === 0) {
         // Log the values to the console (or handle them as needed)
         error_msg = "Message can not be empty.";
     } else if (msg.length > 140) {

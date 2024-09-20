@@ -1,6 +1,13 @@
 {
+  "scripts": {
+    "test": "c8 mocha --timeout=30s --exit ",
+    "istanbul": "nyc mocha"
+  },
   "type": "module",
   "dependencies": {
-    "express": "^4.21.0"
+    "c8": "^10.1.2",
+    "express": "^4.21.0",
+    "mocha": "^10.7.3",
+    "superagent": "^10.1.0"
   }
 }
