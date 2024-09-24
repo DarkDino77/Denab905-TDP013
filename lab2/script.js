@@ -146,9 +146,10 @@ function add_message(msg)
 
     let time = document.createElement("div");
     time.setAttribute("class", "time");
-    date = new Date(msg.time);
-    date_string = date.getFullYear() + "-" + (date.getMonth() + 1) +
-    "-" + date.getDate() + " " + date.toLocaleTimeString([],{hour12 : false, hour:"2-digit", minute : "2-digit"});
+    const date = new Date(msg.time);
+    const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false };
+    const date_string = date.toLocaleString('sv-SE', options).replace(',', '');
+    
     time.innerHTML = "Posted on " + date_string;
     item.appendChild(time);
     let list = document.getElementById("message_list")
