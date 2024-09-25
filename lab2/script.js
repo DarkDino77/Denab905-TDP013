@@ -1,29 +1,3 @@
-
-
-// const btn = document.querySelector("button");
-
-// btn.addEventListener("click", () => {
-//     alert("aaaa");
-// })
-
-/*
-        <li class="post">
-            <div class="author">
-                Author
-            </div>
-            <div class="middle">
-                <div class="message">
-                    Message
-                </div>
-
-                <input type="checkbox" class="read">
-            </div>
-            <div class="time">
-                Time
-            </div>
-        </li>  
-*/
-
 const path = 'http://localhost:3000';
 
 async function get_messages()
@@ -156,7 +130,7 @@ function add_message(msg)
 }
 
 document.getElementById('post').addEventListener('submit', async function(event) {
-    event.preventDefault(); // Prevent the default form submission
+    event.preventDefault();
 
     let author = document.getElementById("Author").value;
     let msg = document.getElementById("Message").value;
@@ -164,13 +138,10 @@ document.getElementById('post').addEventListener('submit', async function(event)
     let error = document.getElementById("error_msg");
     error_msg = ""
     if (msg.length === 0 || msg.replaceAll(" ","").length === 0) {
-        // Log the values to the console (or handle them as needed)
         error_msg = "Message can not be empty.";
     } else if (msg.length > 140 || author.length > 140) {
         error_msg = "Message can not be longer than 140 characters.";
-        
     } else {
-  
         document.getElementById("Message").value = "";
 
         save_message(
