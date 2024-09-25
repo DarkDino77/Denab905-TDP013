@@ -44,6 +44,9 @@ async function save_message(author, message)
 
     if (response.status == 200) {
         add_message(await response.json());
+    } else{
+        let error = document.getElementById("error_msg");
+        error.textContent = response.statusText + response.status
     }
 }
 
@@ -76,6 +79,10 @@ async function change_read_status(id)
 
         checkbox.setAttribute("checked", json.read);
     } 
+    else{
+        let error = document.getElementById("error_msg");
+        error.textContent = response.statusText + response.status
+    }
 }
 
 function add_message(msg)
