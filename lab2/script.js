@@ -42,7 +42,7 @@ async function render_messages()
     let messages = await get_messages();
 
     for (let i = 0; i < messages.length; i++) {
-        add_message(messages[i], messages[i]._id);
+        add_message(messages[i]);
     }
 }
 
@@ -68,7 +68,6 @@ async function save_message(author, message)
         body: JSON.stringify(request)
     }));
 
-    // Hur ska man göra med index här?
     if (response.status == 200) {
         add_message(await response.json());
     }
@@ -167,19 +166,11 @@ document.getElementById('post').addEventListener('submit', async function(event)
     if (msg.length === 0 || msg.replaceAll(" ","").length === 0) {
         // Log the values to the console (or handle them as needed)
         error_msg = "Message can not be empty.";
-    } else if (msg.length > 140) {
+    } else if (msg.length > 140 || author.length > 140) {
         error_msg = "Message can not be longer than 140 characters.";
+        
     } else {
-        let request = {
-            "author": (author.length === 0) ? "Author" : author,
-            "message": msg,
-            "time": Date.now(),
-            "read": "false"
-        }
   
-        // let messages = await get_messages();
-        // messages.unshift(request);
-
         document.getElementById("Message").value = "";
 
         save_message(
