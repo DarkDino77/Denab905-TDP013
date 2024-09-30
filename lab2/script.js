@@ -1,29 +1,3 @@
-
-
-// const btn = document.querySelector("button");
-
-// btn.addEventListener("click", () => {
-//     alert("aaaa");
-// })
-
-/*
-        <li class="post">
-            <div class="author">
-                Author
-            </div>
-            <div class="middle">
-                <div class="message">
-                    Message
-                </div>
-
-                <input type="checkbox" class="read">
-            </div>
-            <div class="time">
-                Time
-            </div>
-        </li>  
-*/
-
 const path = 'http://localhost:3000';
 
 async function get_messages()
@@ -42,7 +16,7 @@ async function render_messages()
     let messages = await get_messages();
 
     for (let i = 0; i < messages.length; i++) {
-        add_message(messages[i], messages[i]._id);
+        add_message(messages[i]);
     }
 }
 
@@ -68,9 +42,11 @@ async function save_message(author, message)
         body: JSON.stringify(request)
     }));
 
-    // Hur ska man göra med index här?
     if (response.status == 200) {
         add_message(await response.json());
+    } else{
+        let error = document.getElementById("error_msg");
+        error.textContent = response.statusText + response.status
     }
 }
 
@@ -103,6 +79,10 @@ async function change_read_status(id)
 
         checkbox.setAttribute("checked", json.read);
     } 
+    else{
+        let error = document.getElementById("error_msg");
+        error.textContent = response.statusText + response.status
+    }
 }
 
 function add_message(msg)
@@ -146,9 +126,10 @@ function add_message(msg)
 
     let time = document.createElement("div");
     time.setAttribute("class", "time");
-    date = new Date(msg.time);
-    date_string = date.getFullYear() + "-" + (date.getMonth() + 1) +
-    "-" + date.getDate() + " " + date.toLocaleTimeString([],{hour12 : false, hour:"2-digit", minute : "2-digit"});
+    const date = new Date(msg.time);
+    const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false };
+    const date_string = date.toLocaleString('sv-SE', options).replace(',', '');
+    
     time.innerHTML = "Posted on " + date_string;
     item.appendChild(time);
     let list = document.getElementById("message_list")
@@ -156,7 +137,7 @@ function add_message(msg)
 }
 
 document.getElementById('post').addEventListener('submit', async function(event) {
-    event.preventDefault(); // Prevent the default form submission
+    event.preventDefault();
 
     let author = document.getElementById("Author").value;
     let msg = document.getElementById("Message").value;
@@ -164,21 +145,10 @@ document.getElementById('post').addEventListener('submit', async function(event)
     let error = document.getElementById("error_msg");
     error_msg = ""
     if (msg.length === 0 || msg.replaceAll(" ","").length === 0) {
-        // Log the values to the console (or handle them as needed)
         error_msg = "Message can not be empty.";
-    } else if (msg.length > 140) {
+    } else if (msg.length > 140 || author.length > 140) {
         error_msg = "Message can not be longer than 140 characters.";
     } else {
-        let request = {
-            "author": (author.length === 0) ? "Author" : author,
-            "message": msg,
-            "time": Date.now(),
-            "read": "false"
-        }
-  
-        // let messages = await get_messages();
-        // messages.unshift(request);
-
         document.getElementById("Message").value = "";
 
         save_message(
