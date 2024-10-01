@@ -1,11 +1,12 @@
-import mongoose from 'mongoose';
+import mongoose, { set } from 'mongoose';
 
 const userSchema = new mongoose.Schema({
     name: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     posts: {type: Array},  // lista av Post-schemas
-    friends: {type: Array}, // lista av idn
-    friendRequests: {type: Array}
+    friends: {type: Array
+    }, // lista av idn
+    friendRequests: {type:Array}
 });
 
 // TODO: kolla om vi faktiskt vill ha ett id på denna
@@ -22,9 +23,17 @@ const postSchema = new mongoose.Schema({
         immutable: true
     }
     
-});
+},{_id: false});
 
+const friendRequest = new mongoose.Schema({
+    index:{type: String,
+        required: true,
+        //add id length
+    }
+}, {_id: false});
+
+const FriendRequest = mongoose.model('FriendRequest', friendRequest);
 const User = mongoose.model('User', userSchema);
 const Post = mongoose.model('Message', postSchema);
 
-export { User, Post }
+export { User, Post, FriendRequest }

@@ -4,7 +4,7 @@ import * as schemes from './scheme.js';
 
 const app = express();
 const port = 8080;
-//curl -H 'Content-Type: application/json' -d '{ "name": "dennis", "password": "mellon" }' http://localhost:8080/users -X POSTapp.use(express.json());
+//curl -H 'Content-Type: application/json' -d '{ "name": "dennis", "password": "mellon" }' http://localhost:8080/users -X POST;
 app.use(express.json());
 app.post('/users', async (req, res) => {
     const body = req.body
@@ -56,14 +56,22 @@ app.get('/users/:id/friends', async (req, res) => {
 });
 
 app.post('/users/:id/friends', async (req, res) => {
-    db.addFriend("66fa83ef4f216c5d08e68413", req.params.id);
+    // {id: "12314"}
+    const friendRequest = schemes.FriendRequest(req.body)
+    db.addFriend(friendRequest, req.params.id);
+    res.sendStatus(200);
+});
+
+app.patch('/users/:id/friends', async (req, res) => {
+    // {id: "12314"}
+    const friendRequest = schemes.FriendRequest(req.body)
+    db.acceptRequest(req.params.id, friendRequest);
     res.sendStatus(200);
 });
 
 app.get('/users/:id', async (req, res) => {
     const id = req.params.id
     const users = await schemes.User.findById(id).exec();
-
     res.status(200).send(users);
 });
 

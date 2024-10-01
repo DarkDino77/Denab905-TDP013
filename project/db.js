@@ -25,8 +25,31 @@ async function getFriendsOfUser(id) {
 
 async function addFriend(userAdding, addedUser) {
     let user = await schemes.User.findById(addedUser);
-    user.friendRequests.push(userAdding);
+    let indexfriendRequests = user.friendRequests.find((element) => element.index === userAdding.index) 
+    let indexfriends = user.friends.find((element) => element.index === userAdding.index)
+      
+    if (indexfriendRequests === undefined || indexfriends === undefined){
+        user.friendRequests.push(userAdding);
+    }
+    else{
+        return;
+    }
+
     
+    user.save();
+}
+
+async function acceptRequest(userAccepting, userAccepted) {
+    let user = await schemes.User.findById(userAccepting);
+    let index = user.friendRequests.find((element) => element.index === userAccepted.index) 
+    if (index === undefined){
+        console.log("Freind requst is not real")
+        console.log(user.friendRequests)
+        console.log(userAccepted)
+        return;
+    }
+    user.friends.push(userAccepted);
+    user.friendRequests.splice(index,1);
     user.save();
 }
 
@@ -44,5 +67,5 @@ async function saveUser(user) {
 }
 
 export { start_database, saveUser, findUser, getPostsByUser, postMessageToWall,
-    getFriendsOfUser, addFriend
+    getFriendsOfUser, addFriend,acceptRequest
  };
