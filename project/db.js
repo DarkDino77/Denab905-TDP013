@@ -31,7 +31,7 @@ async function addFriend(userAdding, addedUser) {
     if (indexfriendRequests === undefined || indexfriends === undefined){
         user.friendRequests.push(userAdding);
     }
-    else{
+    else {
         return;
     }
 

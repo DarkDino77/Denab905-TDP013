@@ -1,4 +1,4 @@
-import mongoose, { set } from 'mongoose';
+import mongoose, { mongo, set } from 'mongoose';
 
 const userSchema = new mongoose.Schema({
     name: { type: String, required: true, unique: true },
@@ -32,8 +32,14 @@ const friendRequest = new mongoose.Schema({
     }
 }, {_id: false});
 
+const loginRequest = new mongoose.Schema({
+    name: { type: String, required: true, unique: true },
+    password: { type: String, required: true }
+}, {_id: false});
+
 const FriendRequest = mongoose.model('FriendRequest', friendRequest);
 const User = mongoose.model('User', userSchema);
 const Post = mongoose.model('Message', postSchema);
+const LoginRequest = mongoose.model('LoginRequest', loginRequest);
 
-export { User, Post, FriendRequest }
+export { User, Post, FriendRequest, LoginRequest }

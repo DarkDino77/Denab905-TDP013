@@ -1,12 +1,58 @@
 import express from 'express';
 import * as db from './db.js';
 import * as schemes from './scheme.js';
+import session from 'express-session';
+import passport from 'passport';
+import LocalStrategy from 'passport-local';
+import MongoStore from 'connect-mongo';
+import mongoose from 'mongoose';
 
 const app = express();
 const port = 8080;
+
 //curl -H 'Content-Type: application/json' -d '{ "name": "dennis", "password": "mellon" }' http://localhost:8080/users -X POST;
+
+await db.start_database();
+console.log("Connected");
+app.listen(port);
+
 app.use(express.json());
+
+app.use(session({
+    secret: 'bla',
+    resave: false,
+    saveUninitialized: false,
+    // store: MongoStore.create({
+    //     client: mongoose.connection.getClient(),
+    //     dbName: process.env.MONGO_DB_NAME,
+    //     collectionName: "sessions",
+    //     stringify: false,
+    //     autoRemove: "interval",
+    //     autoRemoveInterval: 1
+    // })
+}));
+
+app.use((req, res, next) => {
+    next();
+});
+
+app.post('/login', async (req, res) => {
+    const login = new schemes.LoginRequest(req.body);
+    let result = await db.findUser(login);
+
+    if (result === null) {
+        res.sendStatus(400);
+        return;
+    }
+
+    console.log("found");
+    req.session.user = req.body;
+
+    res.status(200).send(req.session);
+});
+
 app.post('/users', async (req, res) => {
+
     const body = req.body
     body.posts = [];
     const newUser = new schemes.User(body)
@@ -70,18 +116,17 @@ app.patch('/users/:id/friends', async (req, res) => {
 });
 
 app.get('/users/:id', async (req, res) => {
+    console.log(req.session.user);
+
     const id = req.params.id
     const users = await schemes.User.findById(id).exec();
     res.status(200).send(users);
 });
 
 app.get('/users', async (req, res) => {
+    console.log(req.session.user);
+
     const users = await schemes.User.find().exec();
 
     res.status(200).send(users);
 });
-
-await db.start_database();
-console.log("Connected");
-app.listen(port);
-
