@@ -1,6 +1,8 @@
 import mongoose from 'mongoose';
 import * as schemes from './scheme.js';
 
+// TODO: felhantering så inte allting kraschar så fort något går fel
+
 async function start_database() {
     await mongoose.connect('mongodb://localhost:27017/');
     // const newUser = new User({name: "dennis", password: "hej"});

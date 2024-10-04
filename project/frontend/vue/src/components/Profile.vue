@@ -1,6 +1,7 @@
 <script setup>
 import { onMounted, Suspense } from 'vue';
 import { useRouter } from 'vue-router';
+import SubmitPost from './SubmitPost.vue';
 
 const router = useRouter();
 
@@ -33,7 +34,6 @@ onMounted(async () => {
         return;
     }
 
-
     console.log(user.value)
 })
 
@@ -42,6 +42,6 @@ onMounted(async () => {
 
 <template>
     <div>
-        <p>{{ id }}</p>
+        <SubmitPost :id=props.id />
     </div>
 </template>

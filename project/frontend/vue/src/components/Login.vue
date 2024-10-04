@@ -1,7 +1,6 @@
 <script setup>
 
 import { useRouter } from 'vue-router';
-import Redirect from './Redirect.vue';
 
 const usernameModel = defineModel('username');
 const passwordModel = defineModel('password');
@@ -22,6 +21,7 @@ function register() {
             "Accept": "application/json",
             "Content-Type": "application/json"
         },
+        credentials: 'include',
         body: JSON.stringify(request)
     });
 }
@@ -58,7 +58,6 @@ async function login() {
 
 <template>
     <div>
-        <p>Hello world</p>
         <form>
             <label for="username">Username:</label>
             <input 
@@ -73,7 +72,6 @@ async function login() {
             <input @click="login" type="button" id="login" value="Login">
             <input @click="register" type="button" id="register" value="Register">
         </form>
-        <Redirect/>
     </div>
 </template>
 
