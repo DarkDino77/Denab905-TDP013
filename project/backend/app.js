@@ -6,17 +6,27 @@ import passport from 'passport';
 import LocalStrategy from 'passport-local';
 import MongoStore from 'connect-mongo';
 import mongoose from 'mongoose';
+import cors from 'cors';
 
 const app = express();
 const port = 8080;
 
 //curl -H 'Content-Type: application/json' -d '{ "name": "dennis", "password": "mellon" }' http://localhost:8080/users -X POST;
 
-await db.start_database();
 console.log("Connected");
-app.listen(port);
 
+const corsOptions = {
+    origin: ['http://127.0.0.1:5173', 'http://localhost:5173'],  // Allow both
+    methods: ['GET', 'POST', 'PATCH', 'DELETE'],
+    allowedHeaders: ['Content-Type'],
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
+
+await db.start_database();
+
+app.listen(port);
 
 app.use(session({
     secret: 'bla',
@@ -46,20 +56,21 @@ app.post('/login', async (req, res) => {
     }
 
     console.log("found");
-    req.session.user = req.body;
+    req.session.user = result._id;
 
     res.status(200).send(req.session);
 });
 
 app.post('/users', async (req, res) => {
-
     const body = req.body
+    console.log(req.body)
     body.posts = [];
     const newUser = new schemes.User(body)
 
     let error = newUser.validateSync();
     let find = await db.findUser({name: newUser.name});
-    console.log(find);
+    //console.log(find);
+
     if (find !== null) {
         console.log("already exists");
         res.sendStatus(500);
@@ -129,4 +140,9 @@ app.get('/users', async (req, res) => {
     const users = await schemes.User.find().exec();
 
     res.status(200).send(users);
+});
+
+app.get('/delete', async (req, res) => {
+    mongoose.connection.db.dropDatabase();
+    res.sendStatus(200);
 });
