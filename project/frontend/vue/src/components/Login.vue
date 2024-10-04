@@ -8,6 +8,8 @@ const passwordModel = defineModel('password');
 
 const router = useRouter();
 
+// TODO: kryptera lösenordet
+
 function register() {
     const request = {
         "name": "" + usernameModel.value,
@@ -36,12 +38,17 @@ async function login() {
             "Accept": "application/json",
             "Content-Type": "application/json"
         },
+        credentials: 'include',
         body: JSON.stringify(request)
     });
 
     if (result.status === 200) {
+        const id = await result.json();
         console.log("Successfully logged in");
-        router.push("/hello");
+        document.cookie = "id=" + id + ";";
+        console.log(document.cookie);
+
+        router.push("/profile/" + id);
     } else {
         console.log("Incorrect username/password");
     }

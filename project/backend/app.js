@@ -7,6 +7,7 @@ import LocalStrategy from 'passport-local';
 import MongoStore from 'connect-mongo';
 import mongoose from 'mongoose';
 import cors from 'cors';
+import cookie from 'express-session/session/cookie.js';
 
 const app = express();
 const port = 8080;
@@ -19,6 +20,7 @@ const corsOptions = {
     origin: ['http://127.0.0.1:5173', 'http://localhost:5173'],  // Allow both
     methods: ['GET', 'POST', 'PATCH', 'DELETE'],
     allowedHeaders: ['Content-Type'],
+    credentials: true
 };
 
 app.use(cors(corsOptions));
@@ -55,10 +57,10 @@ app.post('/login', async (req, res) => {
         return;
     }
 
-    console.log("found");
+    //console.log("found");
     req.session.user = result._id;
 
-    res.status(200).send(req.session);
+    res.status(200).send(result._id);
 });
 
 app.post('/users', async (req, res) => {
@@ -99,7 +101,7 @@ app.post('/users/:id/wall', async (req, res) => {
 
     let error = message.validateSync();
     if (error) {
-        console.log(error);
+        //console.log(error);
         res.status(500).send(error);
     } else {
         db.postMessageToWall(req.params.id, message);
@@ -127,15 +129,35 @@ app.patch('/users/:id/friends', async (req, res) => {
 });
 
 app.get('/users/:id', async (req, res) => {
-    console.log(req.session.user);
-
     const id = req.params.id
     const users = await schemes.User.findById(id).exec();
+
+    const cookieHeader = req.headers.cookie;
+    const cookies = getCookie(cookieHeader);
+
+    console.log(cookies)
+
+    //TODO: kolla om den finns i Users freinds
+    if (id !== cookies.id ) {
+        console.log("No access");
+        res.sendStatus(400);
+        return;
+    }
+
     res.status(200).send(users);
 });
-
+function getCookie(cookieHeader) {
+    if (cookieHeader) {
+        const cookies = cookieHeader.split(';').reduce((acc, cookie) => {
+            const [name, value] = cookie.split('=').map(c => c.trim());
+            acc[name] = value;
+            return acc;
+        }, {});
+        return cookies
+    }
+}
 app.get('/users', async (req, res) => {
-    console.log(req.session.user);
+    //console.log(req.session.user);
 
     const users = await schemes.User.find().exec();
 

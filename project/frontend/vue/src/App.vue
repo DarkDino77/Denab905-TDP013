@@ -1,7 +1,13 @@
+<script setup lang="ts">
+import { Suspense } from 'vue';
+</script>
+
 
 <template>
     <main>    
-        <router-view></router-view> 
+        <Suspense>
+            <router-view></router-view> 
+        </Suspense>
     </main>
 
 </template>
