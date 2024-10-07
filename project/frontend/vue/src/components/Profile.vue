@@ -63,7 +63,7 @@ async function getFriends() {
         console.log("error")
     }
 }
-
+getFriends()
 function logout() {
     userStore.logout();
     fetch('http://localhost:8080/logout', {

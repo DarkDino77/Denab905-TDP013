@@ -21,9 +21,12 @@ async function postMessageToWall(id, message) {
 
 async function getFriendsOfUser(id, search, lambda) {
     let requests = await schemes.User.findById(id).select(search);
+    console.log(requests)
+    console.log(lambda(requests))
     requests = lambda(requests)
     let result = []
-    
+    console.log(requests)
+    console.log(requests.length)
     for (let i = 0; i < requests.length; i++) {
         // TODO: flytta till db
         const reqName = await schemes.User.findById(requests[i]).select('name');
