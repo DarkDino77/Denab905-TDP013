@@ -53,6 +53,11 @@ async function acceptRequest(userAccepting, userAccepted) {
     user.friends.push(userAccepted);
     user.friendRequests.splice(index,1);
     user.save();
+
+    let acceptedUser = await schemes.User.findById(userAccepted);
+    acceptedUser.friends.push(userAccepting);
+    acceptedUser.save();
+
 }
 
 async function getPostsByUser(id) {

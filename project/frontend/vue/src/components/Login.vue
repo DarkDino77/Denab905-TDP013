@@ -2,13 +2,34 @@
 
 import { useRouter } from 'vue-router';
 import SearchButton from './SearchButton.vue';
+import * as store from '../store.js';
 
 const usernameModel = defineModel('username');
 const passwordModel = defineModel('password');
 
 const router = useRouter();
+const userStore = store.loggedInUserStore();
 
 // TODO: kryptera lösenordet
+
+async function authenticate() {
+    const response = await fetch("http://localhost:8080/auth", {
+        method: "GET",
+        headers: {
+            "Accept": "application/json",
+            "Content-Type": "application/json"
+        },
+        credentials: 'include',
+    });
+
+    if (response.status === 200) {
+        const id = await response.text();
+        userStore.setUser(id);
+        router.push(`/profile/${id}`);
+    }
+}
+
+authenticate();
 
 function register() {
     const request = {
@@ -45,6 +66,8 @@ async function login() {
 
     if (result.status === 200) {
         const id = await result.json();
+        userStore.setUser(id);
+
         console.log("Successfully logged in");
 
         router.push("/profile/" + id);

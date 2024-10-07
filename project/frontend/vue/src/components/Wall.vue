@@ -1,10 +1,10 @@
 <script>
 
-defineProps({
-    id: {
-        
-    }
-})
+// defineProps({
+//     id: {
+
+//     }
+// })
 
 </script>
 

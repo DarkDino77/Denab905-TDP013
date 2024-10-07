@@ -71,6 +71,16 @@ app.post('/login', async (req, res) => {
     res.status(200).send(result._id);
 });
 
+app.get('/logout', async (req, res) => {
+    req.session.destroy();
+    res.sendStatus(200);
+});
+
+app.get('/auth', authenticate, async (req, res) => {
+    const id = req.session.userId;
+    res.status(200).send(id);
+});
+
 app.post('/users', async (req, res) => {
     const body = req.body
     console.log(req.body)
@@ -118,8 +128,8 @@ app.post('/users/:id/wall', async (req, res) => {
     }
 });
 
-app.get('/users/:id/friends', async (req, res) => {
-    let friends = await db.getFriendsOfUser(req.params.id);
+app.get('/friends', async (req, res) => {
+    let friends = await db.getFriendsOfUser(req.session.userId);
     res.status(200).send(friends);
 });
 
@@ -133,7 +143,7 @@ app.post('/users/:id/friends', authenticate, async (req, res) => {
     }
 });
 
-app.patch('/users/:id/friends', async (req, res) => {
+app.patch('/users/:id/friends', authenticate, async (req, res) => {
     // {id: "12314"}
     db.acceptRequest(req.session.userId, req.params.id);
     res.sendStatus(200);
@@ -152,9 +162,7 @@ app.get('/users/:id', authenticate, async (req, res) => {
 });
 
 app.get('/users', async (req, res) => {
-    //console.log(req.session.user);
-
-    const users = await schemes.User.find().exec();
+    const users = await schemes.User.find().select('name');
 
     res.status(200).send(users);
 });

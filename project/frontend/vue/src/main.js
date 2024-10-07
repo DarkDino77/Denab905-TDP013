@@ -1,4 +1,5 @@
 import { createApp } from "vue";
+import { createPinia } from 'pinia'
 import App from './App.vue';
 import Login from './components/Login.vue';
 import Profile from './components/Profile.vue';
@@ -7,6 +8,7 @@ import Wall from './components/Wall.vue';
 
 
 import { createMemoryHistory, createRouter } from 'vue-router'
+import { loggedInUserStore } from "./store";
 
 const routes = [
     { path: '/', component: Login },
@@ -20,6 +22,19 @@ const router = createRouter({
     routes
 })
 
+const pinia = createPinia()
+
+router.beforeEach((to, from, next) => {
+    const store = loggedInUserStore();
+    if (store.loggedIn === undefined) {
+        if (to.path !== '/') {
+            next('/');
+        }
+    }
+    next();
+})
+
 const app = createApp(App);
 app.use(router);
+app.use(pinia)
 app.mount('#app');

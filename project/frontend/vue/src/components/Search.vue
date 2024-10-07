@@ -2,10 +2,14 @@
 
 import { ref , computed} from 'vue';
 import { useRouter } from 'vue-router';
+import * as store from '../store.js';
 
 const router = useRouter();
 const users = ref([]);
 const searchTermModel = defineModel('searchTerm');
+const userStore = store.loggedInUserStore();
+
+let friendsList = defineModel('friendsList');
 
 async function fetchUsers() {
     const response = await fetch(`http://localhost:8080/users/`, {
@@ -17,10 +21,35 @@ async function fetchUsers() {
         credentials: 'include',
     });
 
-    const data = await response.json();
-    users.value = data;
-    console.log(users.value)
+    if (response.status === 200) {
+        const data = await response.json();
+        users.value = data;
+        console.log(users.value)
+    } else {
+        console.log("error");
+    }
 }
+
+async function getFriends() {
+    const response = await fetch(`http://localhost:8080/friends/`, {
+            method: "GET",
+            headers: {
+                "Accept": "application/json",
+                "Content-Type": "application/json"
+        },
+        credentials: 'include',
+    });
+
+    if (response.status === 200) {
+        const data = await response.json();
+        console.log(data);
+        friendsList.value = data;
+    } else {
+        console.log("error");
+    }
+}
+
+getFriends();
 
 function sendRequest(id) {
     fetch(`http://localhost:8080/users/${id}/friends`, {
@@ -43,8 +72,8 @@ function goToProfile(id) {
 fetchUsers();
 
 const filterdUsers = computed(() => {
-    return users.value.filter(user =>
-    searchTermModel.value === undefined || user.name.toLowerCase().includes(searchTermModel.value.toLowerCase())
+    return users.value.filter((user) =>
+        searchTermModel.value === undefined || user.name.toLowerCase().includes(searchTermModel.value.toLowerCase())
     );
 })
 
