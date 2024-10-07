@@ -30,7 +30,7 @@ async function addFriend(userAdding, addedUser) {
     let indexfriendRequests = user.friendRequests.find((element) => element.index === userAdding.index) 
     let indexfriends = user.friends.find((element) => element.index === userAdding.index)
       
-    if (indexfriendRequests === undefined || indexfriends === undefined){
+    if (indexfriendRequests === undefined && indexfriends === undefined){
         user.friendRequests.push(userAdding);
     }
     else {

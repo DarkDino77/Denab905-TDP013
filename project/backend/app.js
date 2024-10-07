@@ -23,6 +23,14 @@ const corsOptions = {
     credentials: true
 };
 
+const authenticate = (req, res, next) => {
+    if (req.session.userId) {
+        next();
+    } else {
+        res.sendStatus(401);
+    }
+}
+
 app.use(cors(corsOptions));
 app.use(express.json());
 
@@ -58,7 +66,7 @@ app.post('/login', async (req, res) => {
     }
 
     //console.log("found");
-    req.session.user = result._id;
+    req.session.userId = result._id;
 
     res.status(200).send(result._id);
 });
@@ -104,6 +112,7 @@ app.post('/users/:id/wall', async (req, res) => {
         //console.log(error);
         res.status(500).send(error);
     } else {
+        console.log(req.params.id)
         db.postMessageToWall(req.params.id, message);
         res.sendStatus(200);
     }
@@ -114,48 +123,34 @@ app.get('/users/:id/friends', async (req, res) => {
     res.status(200).send(friends);
 });
 
-app.post('/users/:id/friends', async (req, res) => {
+app.post('/users/:id/friends', authenticate, async (req, res) => {
     // {id: "12314"}
-    const friendRequest = schemes.FriendRequest(req.body)
-    db.addFriend(friendRequest, req.params.id);
-    res.sendStatus(200);
+    if (req.session.userId !== req.params.id) {
+        db.addFriend(req.session.userId, req.params.id);
+        res.sendStatus(200);
+    } else {
+        res.sendStatus(400);
+    }
 });
 
 app.patch('/users/:id/friends', async (req, res) => {
     // {id: "12314"}
-    const friendRequest = schemes.FriendRequest(req.body)
-    db.acceptRequest(req.params.id, friendRequest);
+    db.acceptRequest(req.session.userId, req.params.id);
     res.sendStatus(200);
 });
 
-app.get('/users/:id', async (req, res) => {
+app.get('/users/:id', authenticate, async (req, res) => {
     const id = req.params.id
     const users = await schemes.User.findById(id).exec();
-
-    const cookieHeader = req.headers.cookie;
-    const cookies = getCookie(cookieHeader);
-
-    console.log(cookies)
-
-    //TODO: kolla om den finns i Users freinds
-    if (id !== cookies.id ) {
+    if (id !== req.session.userId ) {
         console.log("No access");
-        res.sendStatus(400);
+        res.sendStatus(401);
         return;
     }
 
     res.status(200).send(users);
 });
-function getCookie(cookieHeader) {
-    if (cookieHeader) {
-        const cookies = cookieHeader.split(';').reduce((acc, cookie) => {
-            const [name, value] = cookie.split('=').map(c => c.trim());
-            acc[name] = value;
-            return acc;
-        }, {});
-        return cookies
-    }
-}
+
 app.get('/users', async (req, res) => {
     //console.log(req.session.user);
 

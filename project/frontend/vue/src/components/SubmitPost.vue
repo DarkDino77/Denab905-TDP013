@@ -3,6 +3,8 @@
 const postModel = defineModel('post');
 const errorModel = defineModel('error');
 
+const emit = defineEmits(['newPost']);
+
 const props = defineProps({
     id: {
         type: String,
@@ -11,7 +13,7 @@ const props = defineProps({
 });
 
 function messageIsValid(message) {
-    return message.length <= 200 &&
+    return message.length <= 140 &&
     message.length > 0;
 }
 
@@ -30,9 +32,12 @@ function sendPost() {
                 "Accept": "application/json",
                 "Content-Type": "application/json"
         },
-        credentials: 'include',
-        body: JSON.stringify(request)
-    });
+            credentials: 'include',
+            body: JSON.stringify(request)
+        })
+        .then(() => {
+            emit('newPost');
+        });
 
     } else {
         errorModel.value = "Invalid message!";

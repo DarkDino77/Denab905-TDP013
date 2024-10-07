@@ -1,6 +1,7 @@
 <script setup>
 
 import { useRouter } from 'vue-router';
+import SearchButton from './SearchButton.vue';
 
 const usernameModel = defineModel('username');
 const passwordModel = defineModel('password');
@@ -45,8 +46,6 @@ async function login() {
     if (result.status === 200) {
         const id = await result.json();
         console.log("Successfully logged in");
-        document.cookie = "id=" + id + ";";
-        console.log(document.cookie);
 
         router.push("/profile/" + id);
     } else {
@@ -71,6 +70,7 @@ async function login() {
                 id="password"><br>
             <input @click="login" type="button" id="login" value="Login">
             <input @click="register" type="button" id="register" value="Register">
+            <SearchButton />
         </form>
     </div>
 </template>

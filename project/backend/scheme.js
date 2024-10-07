@@ -25,21 +25,14 @@ const postSchema = new mongoose.Schema({
     
 },{_id: false});
 
-const friendRequest = new mongoose.Schema({
-    index:{type: String,
-        required: true,
-        //add id length
-    }
-}, {_id: false});
 
 const loginRequest = new mongoose.Schema({
     name: { type: String, required: true, unique: true },
     password: { type: String, required: true }
 }, {_id: false});
 
-const FriendRequest = mongoose.model('FriendRequest', friendRequest);
 const User = mongoose.model('User', userSchema);
 const Post = mongoose.model('Message', postSchema);
 const LoginRequest = mongoose.model('LoginRequest', loginRequest);
 
-export { User, Post, FriendRequest, LoginRequest }
+export { User, Post, LoginRequest }
