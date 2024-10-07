@@ -9,6 +9,9 @@ export const loggedInUserStore = defineStore('loggedInUser', {
         setUser(id) {
             this.loggedIn = id;
         },
+        getUser() {
+            return this.loggedIn;
+        },
         logout() {
             this.loggedIn = undefined;
         }

@@ -6,6 +6,7 @@ import Posts from './Posts.vue';
 import SearchButton from './SearchButton.vue';
 import * as store from '../store.js';
 import FriendRequestList from './FriendRequestList.vue';
+import FriendList from './FriendList.vue';
 
 const router = useRouter();
 
@@ -35,7 +36,7 @@ async function fetchUser(id) {
         credentials: 'include',
     });
 
-    if (response.status == 200) {
+    if (response.status === 200) {
         user.value = await response.json();
         console.log(user.value);
     } else {
@@ -44,6 +45,23 @@ async function fetchUser(id) {
         return;
     }
     
+}
+
+async function getFriends() {
+    const response = await fetch('http://localhost:8080/friends', {
+        method: 'GET',
+        headers: {
+            "Accept": "application/json",
+            "Content-Type": "application/json"
+        },
+        credentials: 'include',
+    });
+
+    if (response.status === 200) {
+        user.value.friends = await response.json();
+    } else {
+        console.log("error")
+    }
 }
 
 function logout() {
@@ -66,7 +84,7 @@ function logout() {
 <template>
     <SearchButton />
     <button @click="logout">Logout</button>
-    <FriendRequestList @acceptedFriend="fetchUser(user._id)" />
+    <FriendRequestList @acceptedFriend="getFriends(user._id)" />
     <div>
         <SubmitPost @newPost="fetchUser(user._id)" :id=user._id />
         <div v-if="user.posts">
@@ -76,4 +94,5 @@ function logout() {
             <p>Loading</p>
         </div>
     </div>
+    <FriendList :friends=user.friends />
 </template>

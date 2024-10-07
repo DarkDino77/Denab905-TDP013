@@ -7,7 +7,7 @@
 - [x] Endast ny informationen ska uppdateras på hemsidan, dvs. hela webbplatsen ska endast laddas om i undantagsfall.
 - [x] Det ska finnas en sökfunktion för att hitta andra användare. Man ska kunna söka efter användare även om man bara vet en del av namnet.
 - [x] Användare ska kunna lägga skicka vänförfrågningar till andra användare.
-- [ ] Vänförfrågningar måste accepteras innan man blir vänner.
+- [x] Vänförfrågningar måste accepteras innan man blir vänner.
 - [ ] Vänförfrågningar ska inte kunna skickas till användare man redan är vän med.
 - [ ] Användare ska kunna se en lista över sina vänner.
 - [x] Användare ska ha en personlig sida.

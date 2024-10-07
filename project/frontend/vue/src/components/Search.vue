@@ -3,6 +3,7 @@
 import { ref , computed} from 'vue';
 import { useRouter } from 'vue-router';
 import * as store from '../store.js';
+import UserButton from '../components/UserButton.vue';
 
 const router = useRouter();
 const users = ref([]);
@@ -65,15 +66,15 @@ function sendRequest(id) {
     });
 }
 
-function goToProfile(id) {
-    router.push(`/wall/${id}`);
-}
 
 fetchUsers();
 
 const filterdUsers = computed(() => {
-    return users.value.filter((user) =>
-        searchTermModel.value === undefined || user.name.toLowerCase().includes(searchTermModel.value.toLowerCase())
+    return users.value.filter((user) => {
+        return (searchTermModel.value === undefined || 
+        user.name.toLowerCase().includes(searchTermModel.value.toLowerCase())) && 
+        user._id !== userStore.getUser();
+    }
     );
 })
 
@@ -86,7 +87,7 @@ const filterdUsers = computed(() => {
 </textarea>
 
 <li v-for="user in filterdUsers">
-    <button @click="goToProfile(user._id)">{{ user.name  }}</button>
+    <UserButton :user="user" />
     <button @click="sendRequest(user._id)">Add</button>
 </li>    
 

@@ -19,10 +19,18 @@ async function postMessageToWall(id, message) {
     await user.save();
 }
 
-async function getFriendsOfUser(id) {
-    let user = await schemes.User.findById(id);
-    console.log(user.friends);
-    return user.friends;
+async function getFriendsOfUser(id, search, lambda) {
+    let requests = await schemes.User.findById(id).select(search);
+    requests = lambda(requests)
+    let result = []
+    
+    for (let i = 0; i < requests.length; i++) {
+        // TODO: flytta till db
+        const reqName = await schemes.User.findById(requests[i]).select('name');
+        result.push(reqName);
+    }
+    console.log(result);
+    return result;
 }
 
 async function addFriend(userAdding, addedUser) {
