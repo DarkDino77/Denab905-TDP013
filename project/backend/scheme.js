@@ -4,8 +4,7 @@ const userSchema = new mongoose.Schema({
     name: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     posts: {type: Array},  // lista av Post-schemas
-    friends: {type: Array
-    }, // lista av idn
+    friends: {type: Array}, // lista av idn
     friendRequests: {type:Array}
 });
 

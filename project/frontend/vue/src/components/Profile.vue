@@ -37,6 +37,7 @@ async function fetchUser(id) {
 
     if (response.status == 200) {
         user.value = await response.json();
+        console.log(user.value);
     } else {
         // TODO: gör detta på ett mindre dåligt sätt
         router.go(-1);
@@ -65,7 +66,7 @@ function logout() {
 <template>
     <SearchButton />
     <button @click="logout">Logout</button>
-    <FriendRequestList @acceptedFriend="fetchUser(user._id)" :requests=user.friendRequests />
+    <FriendRequestList @acceptedFriend="fetchUser(user._id)" />
     <div>
         <SubmitPost @newPost="fetchUser(user._id)" :id=user._id />
         <div v-if="user.posts">

@@ -133,6 +133,21 @@ app.get('/friends', async (req, res) => {
     res.status(200).send(friends);
 });
 
+app.get('/requests', async (req, res) => {
+    console.log("hej")
+    let requests = await schemes.User.findById(req.session.userId).select('friendRequests ');
+    requests = requests.friendRequests
+    let result = []
+
+    for (let i = 0; i < requests.length; i++) {
+        // TODO: flytta till db
+        const reqName = await schemes.User.findById(requests[i]).select('name');
+        result.push(reqName);
+    }
+
+    res.status(200).send(result);
+});
+
 app.post('/users/:id/friends', authenticate, async (req, res) => {
     // {id: "12314"}
     if (req.session.userId !== req.params.id) {

@@ -26,6 +26,8 @@ async function getFriendsOfUser(id) {
 }
 
 async function addFriend(userAdding, addedUser) {
+    console.log("add")
+    
     let user = await schemes.User.findById(addedUser);
     let indexfriendRequests = user.friendRequests.find((element) => element.index === userAdding.index) 
     let indexfriends = user.friends.find((element) => element.index === userAdding.index)
@@ -36,7 +38,6 @@ async function addFriend(userAdding, addedUser) {
     else {
         return;
     }
-
     
     user.save();
 }
