@@ -28,7 +28,7 @@ async function fetchUser(id) {
 
 <template>
     <div>
-        <SubmitPost @newPost="fetchUser(user._id)" :id=user._id :author=user.name />
+        <SubmitPost @newPost="fetchUser(user._id)" :id=user._id />
         <div v-if="user.posts">
             <Posts :postList=user.posts />
         </div>

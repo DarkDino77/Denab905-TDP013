@@ -17,4 +17,21 @@ async function fetchUser(id) {
     }
 }
 
-export { fetchUser };
+async function getFriends() {
+    const response = await fetch('http://localhost:8080/friends', {
+        method: 'GET',
+        headers: {
+            "Accept": "application/json",
+            "Content-Type": "application/json"
+        },
+        credentials: 'include',
+    });
+
+    if (response.status === 200) {
+        return await response.json();
+    } else {
+        return undefined;
+    }
+}
+
+export { fetchUser, getFriends };

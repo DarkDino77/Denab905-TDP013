@@ -5,7 +5,7 @@ import Login from './components/Login.vue';
 import Profile from './components/Profile.vue';
 import Search from './components/Search.vue';
 import Wall from './components/Wall.vue';
-
+import './output.css';
 
 import { createMemoryHistory, createRouter } from 'vue-router'
 import { loggedInUserStore } from "./store";
@@ -28,7 +28,8 @@ router.beforeEach((to, from, next) => {
     const store = loggedInUserStore();
     if (store.loggedIn === undefined) {
         if (to.path !== '/') {
-            next('/');
+            return next('/');
+            
         }
     }
     next();

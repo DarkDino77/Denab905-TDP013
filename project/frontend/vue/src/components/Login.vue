@@ -23,7 +23,7 @@ async function authenticate() {
     });
 
     if (response.status === 200) {
-        const user = await response.text();
+        const user = await response.json();
         userStore.setUser(user.id, user.name);
         router.push(`/profile/${user.id}`);
     }
@@ -79,21 +79,29 @@ async function login() {
 </script>
 
 <template>
-    <div>
+    <div class="flex justify-center items-center h-screen bg-gray-700">
         <form>
-            <label for="username">Username:</label>
             <input 
                 v-model="usernameModel"
                 type="text" 
-                id="username"><br>
-            <label for="password">Password:</label>
+                id="username" 
+                class="text-input-primary"
+                placeholder="Username"><br>
             <input 
                 v-model="passwordModel"
                 type="text" 
-                id="password"><br>
-            <input @click="login" type="button" id="login" value="Login">
-            <input @click="register" type="button" id="register" value="Register">
-            <SearchButton />
+                id="password"
+                class="text-input-primary"
+                placeholder="Password"><br>
+         <div class="flex flex-row items-center">
+            <input 
+            @click="login" 
+            type="button" 
+            id="login" 
+            value="Login"
+            class="button-primary">
+            <input @click="register" type="button" id="register" value="Register" class="button-primary">
+        </div>
         </form>
     </div>
 </template>

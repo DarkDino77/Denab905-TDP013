@@ -24,6 +24,7 @@ const corsOptions = {
 };
 
 const authenticate = (req, res, next) => {
+    console.log(req.session.userId)
     if (req.session.userId) {
         next();
     } else {
@@ -42,14 +43,18 @@ app.use(session({
     secret: 'bla',
     resave: false,
     saveUninitialized: false,
-    // store: MongoStore.create({
-    //     client: mongoose.connection.getClient(),
-    //     dbName: process.env.MONGO_DB_NAME,
-    //     collectionName: "sessions",
-    //     stringify: false,
-    //     autoRemove: "interval",
-    //     autoRemoveInterval: 1
-    // })
+    store: MongoStore.create({
+        client: mongoose.connection.getClient(),
+        dbName: process.env.MONGO_DB_NAME,
+        collectionName: "sessions",
+        stringify: false,
+        autoRemove: "interval",
+        autoRemoveInterval: 1
+    }),
+    cookie: {
+        maxAge: 24 * 60 * 60 * 1000 ,
+        httpOnly: true,
+    }
 }));
 
 app.use((req, res, next) => {

@@ -21,12 +21,8 @@ async function postMessageToWall(id, message) {
 
 async function getFriendsOfUser(id, search, lambda) {
     let requests = await schemes.User.findById(id).select(search);
-    console.log(requests)
-    console.log(lambda(requests))
     requests = lambda(requests)
     let result = []
-    console.log(requests)
-    console.log(requests.length)
     for (let i = 0; i < requests.length; i++) {
         // TODO: flytta till db
         const reqName = await schemes.User.findById(requests[i]).select('name');
@@ -37,12 +33,13 @@ async function getFriendsOfUser(id, search, lambda) {
 }
 
 async function addFriend(userAdding, addedUser) {
-    console.log("add")
     
     let user = await schemes.User.findById(addedUser);
-    let indexfriendRequests = user.friendRequests.find((element) => element.index === userAdding.index) 
-    let indexfriends = user.friends.find((element) => element.index === userAdding.index)
-      
+    let indexfriendRequests = user.friendRequests.find((element) => {
+        return element === userAdding
+    }) 
+    let indexfriends = user.friends.find((element) => element === userAdding)
+    
     if (indexfriendRequests === undefined && indexfriends === undefined){
         user.friendRequests.push(userAdding);
     }
@@ -55,7 +52,7 @@ async function addFriend(userAdding, addedUser) {
 
 async function acceptRequest(userAccepting, userAccepted) {
     let user = await schemes.User.findById(userAccepting);
-    let index = user.friendRequests.find((element) => element.index === userAccepted.index) 
+    let index = user.friendRequests.find((element) => element === userAccepted) 
     if (index === undefined){
         console.log("Freind requst is not real")
         console.log(user.friendRequests)
