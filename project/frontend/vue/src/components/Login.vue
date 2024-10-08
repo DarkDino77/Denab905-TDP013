@@ -23,9 +23,9 @@ async function authenticate() {
     });
 
     if (response.status === 200) {
-        const id = await response.text();
-        userStore.setUser(id);
-        router.push(`/profile/${id}`);
+        const user = await response.text();
+        userStore.setUser(user.id, user.name);
+        router.push(`/profile/${user.id}`);
     }
 }
 
@@ -65,12 +65,12 @@ async function login() {
     });
 
     if (result.status === 200) {
-        const id = await result.json();
-        userStore.setUser(id);
+        const user = await result.json();
+        userStore.setUser(user.id, user.name);
 
         console.log("Successfully logged in");
 
-        router.push("/profile/" + id);
+        router.push("/profile/" + user.id);
     } else {
         console.log("Incorrect username/password");
     }

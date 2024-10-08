@@ -73,7 +73,7 @@ const filterdUsers = computed(() => {
     return users.value.filter((user) => {
         return (searchTermModel.value === undefined || 
         user.name.toLowerCase().includes(searchTermModel.value.toLowerCase())) && 
-        user._id !== userStore.getUser();
+        user._id !== userStore.getId();
     }
     );
 })

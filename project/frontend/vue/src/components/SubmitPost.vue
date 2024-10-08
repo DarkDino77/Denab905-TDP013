@@ -1,5 +1,8 @@
 <script setup>
 
+import * as store from '../store.js';
+
+const userStore = store.loggedInUserStore();
 const postModel = defineModel('post');
 const errorModel = defineModel('error');
 
@@ -23,7 +26,8 @@ function sendPost() {
         errorModel.value = "";
         
         const request = {
-            "message": trimmed
+            "message": trimmed,
+            "author": userStore.getName()
         };
 
         fetch(`http://localhost:8080/users/${props.id}/wall`, {

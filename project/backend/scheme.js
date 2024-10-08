@@ -20,6 +20,10 @@ const postSchema = new mongoose.Schema({
         type: Date,
         default: Date.now,
         immutable: true
+    },
+    author: {
+        type: String,
+        required: true
     }
     
 },{_id: false});

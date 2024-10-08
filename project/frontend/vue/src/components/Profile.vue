@@ -7,6 +7,8 @@ import SearchButton from './SearchButton.vue';
 import * as store from '../store.js';
 import FriendRequestList from './FriendRequestList.vue';
 import FriendList from './FriendList.vue';
+import * as utils from '../utils.js';
+import Wall from './Wall.vue';
 
 const router = useRouter();
 
@@ -17,35 +19,10 @@ defineProps({
     }
 });
 
-const user = ref('user');
+let friends = ref([]);
+
 const route = useRoute();
 const userStore = store.loggedInUserStore();
-
-
-watch(() => route.params.id, fetchUser, { immediate: true });
-
-async function fetchUser(id) {
-    const path = `http://localhost:8080/users/${id}`;
-
-    const response = await fetch(path, {
-        method: 'GET',
-        headers: {
-            "Accept": "application/json",
-            "Content-Type": "application/json"
-        },
-        credentials: 'include',
-    });
-
-    if (response.status === 200) {
-        user.value = await response.json();
-        console.log(user.value);
-    } else {
-        // TODO: gör detta på ett mindre dåligt sätt
-        router.go(-1);
-        return;
-    }
-    
-}
 
 async function getFriends() {
     const response = await fetch('http://localhost:8080/friends', {
@@ -58,14 +35,15 @@ async function getFriends() {
     });
 
     if (response.status === 200) {
-        user.value.friends = await response.json();
+        friends.value = await response.json();
     } else {
         console.log("error")
     }
 }
+
 getFriends()
+
 function logout() {
-    userStore.logout();
     fetch('http://localhost:8080/logout', {
         method: 'GET',
         headers: {
@@ -75,6 +53,7 @@ function logout() {
         credentials: 'include',
     })
     .then(() => {
+        userStore.logout();
         router.push('/');
     });
 }
@@ -84,15 +63,9 @@ function logout() {
 <template>
     <SearchButton />
     <button @click="logout">Logout</button>
-    <FriendRequestList @acceptedFriend="getFriends(user._id)" />
+    <FriendRequestList @acceptedFriend="getFriends(route.params.id)" />
     <div>
-        <SubmitPost @newPost="fetchUser(user._id)" :id=user._id />
-        <div v-if="user.posts">
-            <Posts  :postList=user.posts />
-        </div>
-        <div v-else>
-            <p>Loading</p>
-        </div>
+        <Wall :id=route.params.id />
     </div>
-    <FriendList :friends=user.friends />
+    <FriendList :friends=friends />
 </template>

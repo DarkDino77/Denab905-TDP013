@@ -12,8 +12,8 @@ defineProps({
 </script>
 
 <template>
-
 <li v-for="friend in friends">
+
     <UserButton :user="friend" />
 </li>
 

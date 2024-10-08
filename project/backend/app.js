@@ -67,8 +67,9 @@ app.post('/login', async (req, res) => {
 
     //console.log("found");
     req.session.userId = result._id;
+    req.session.name = result.name;
 
-    res.status(200).send(result._id);
+    res.status(200).send({ id: req.session.userId, name: req.session.name } );
 });
 
 app.get('/logout', async (req, res) => {
@@ -78,7 +79,8 @@ app.get('/logout', async (req, res) => {
 
 app.get('/auth', authenticate, async (req, res) => {
     const id = req.session.userId;
-    res.status(200).send(id);
+    const name = req.session.name;
+    res.status(200).send({ id: id, name: name });
 });
 
 app.post('/users', async (req, res) => {
@@ -161,7 +163,7 @@ app.patch('/users/:id/friends', authenticate, async (req, res) => {
 app.get('/users/:id', authenticate, async (req, res) => {
     const id = req.params.id
     const users = await schemes.User.findById(id).exec();
-    if (id !== req.session.userId ) {
+    if (false && id !== req.session.userId ) {
         console.log("No access");
         res.sendStatus(401);
         return;

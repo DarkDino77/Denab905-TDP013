@@ -12,9 +12,9 @@ import { loggedInUserStore } from "./store";
 
 const routes = [
     { path: '/', component: Login },
-    { path: '/profile/:id', component: Profile, props: true },
+    { path: '/profile/:id', component: Profile },
     { path: '/search', component: Search },
-    { path: '/wall/:id', component: Wall },
+    { path: '/wall/:id', component: Wall, props: true },
 ];
 
 const router = createRouter({

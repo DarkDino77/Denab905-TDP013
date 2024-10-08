@@ -19,6 +19,7 @@ function formatDate(date) {
 
 <div>
     <p> {{ formatDate(new Date(post.date))  }}</p>
+    <p> {{ post.author  }}</p>
     <p> {{ post.message  }}</p>
 </div>
 
