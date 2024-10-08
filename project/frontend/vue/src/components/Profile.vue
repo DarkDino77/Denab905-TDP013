@@ -32,20 +32,26 @@ function logout() {
         },
         credentials: 'include',
     })
-    .then(() => {
-        userStore.logout();
-        router.push('/');
-    });
+        .then(() => {
+            userStore.logout();
+            router.push('/');
+        });
 }
 
 </script>
 
 <template>
-    <SearchButton />
-    <button @click="logout">Logout</button>
-    <FriendRequestList @acceptedFriend="getFriends()" />
-    <div>
-        <Wall :id=route.params.id />
+    <div class="flex flex-row justify-between items-start ">
+        <div class="flex flex-row items-start">
+            <SearchButton class="flex-none w-14" />
+            <div>
+                <button @click="logout" class="flex-none w-14">Logout</button>
+                <FriendRequestList @acceptedFriend="getFriends()" class="flex-initial w-64" />
+            </div>
+        </div>
+        <Wall :id=route.params.id class="flex-initial w-128" />
+        <div class="flex flex-col justify-end">
+            <FriendList :friends="friends" class="flex-initial w-64 h-32" />
+        </div>
     </div>
-    <FriendList :friends=friends />
 </template>

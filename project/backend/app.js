@@ -2,12 +2,10 @@ import express from 'express';
 import * as db from './db.js';
 import * as schemes from './scheme.js';
 import session from 'express-session';
-import passport from 'passport';
-import LocalStrategy from 'passport-local';
 import MongoStore from 'connect-mongo';
 import mongoose from 'mongoose';
 import cors from 'cors';
-import cookie from 'express-session/session/cookie.js';
+
 
 const app = express();
 const port = 8080;

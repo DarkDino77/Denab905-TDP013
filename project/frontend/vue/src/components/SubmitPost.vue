@@ -52,12 +52,12 @@ function sendPost() {
 
 <template>
     <form id="post" v-on:submit.prevent>
-        <div>
-            <label for="message">Message:</label>
+        <div class="flex flex-row space-x-2 padding">
             <textarea 
             v-model="postModel"
-            class="message"></textarea>
-            <input @click="sendPost" type="submit" value="Submit">
+            placeholder="Message"
+            class = "flex-auto resize-none"></textarea>
+            <input @click="sendPost" type="submit" value="Submit" class="flex-none w-40 bg-green-800">
         </div>
     </form>
     <p>{{ errorModel }}</p>

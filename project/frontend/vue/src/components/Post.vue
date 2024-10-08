@@ -17,10 +17,16 @@ function formatDate(date) {
 
 <template>
 
-<div>
-    <p> {{ formatDate(new Date(post.date))  }}</p>
-    <p> {{ post.author  }}</p>
-    <p> {{ post.message  }}</p>
+<div class="bg-sky-800 rounded-xl flex flex-col space-y-4 text-stone-300">
+    <div class="font-bold">
+    {{ post.author  }}
+    </div>
+    <div>
+        {{ post.message  }}
+    </div>
+    <div class="italic">
+        {{ formatDate(new Date(post.date))  }}
+    </div>
 </div>
 
 </template>

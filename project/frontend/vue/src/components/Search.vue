@@ -1,6 +1,6 @@
 <script setup>
 
-import { ref , computed} from 'vue';
+import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import * as store from '../store.js';
 import UserButton from '../components/UserButton.vue';
@@ -11,14 +11,14 @@ const users = ref([]);
 const searchTermModel = defineModel('searchTerm');
 const userStore = store.loggedInUserStore();
 
-let friendsList = defineModel('friendsList',[]);
+let friendsList = defineModel('friendsList', []);
 
 async function fetchUsers() {
     const response = await fetch(`http://localhost:8080/users/`, {
-            method: "GET",
-            headers: {
-                "Accept": "application/json",
-                "Content-Type": "application/json"
+        method: "GET",
+        headers: {
+            "Accept": "application/json",
+            "Content-Type": "application/json"
         },
         credentials: 'include',
     });
@@ -40,16 +40,16 @@ getFriends();
 
 function sendRequest(id) {
     fetch(`http://localhost:8080/users/${id}/friends`, {
-            method: "POST",
-            headers: {
-                "Accept": "application/json",
-                "Content-Type": "application/json"
-            },
-            credentials: 'include',
+        method: "POST",
+        headers: {
+            "Accept": "application/json",
+            "Content-Type": "application/json"
+        },
+        credentials: 'include',
     })
-    .then(() => {
-        console.log("Added friend");
-    });
+        .then(() => {
+            console.log("Added friend");
+        });
 }
 
 
@@ -57,9 +57,9 @@ fetchUsers();
 
 const filterdUsers = computed(() => {
     return users.value.filter((user) => {
-        return (searchTermModel.value === undefined || 
-        user.name.toLowerCase().includes(searchTermModel.value.toLowerCase())) && 
-        user._id !== userStore.getId();
+        return (searchTermModel.value === undefined ||
+            user.name.toLowerCase().includes(searchTermModel.value.toLowerCase())) &&
+            user._id !== userStore.getId();
     }
     );
 })
@@ -67,7 +67,7 @@ const filterdUsers = computed(() => {
 function isFriendsWithUser(id) {
     if (friendsList.value === undefined)
         return false;
-    
+
     for (let i = 0; i < friendsList.value.length; i++) {
         if (friendsList.value[i]._id === id) {
             return true;
@@ -81,16 +81,23 @@ function isFriendsWithUser(id) {
 
 <template>
 
-<div>
-<textarea v-model="searchTermModel">
-</textarea>
+    <div class="flex flex-col justify-center content-center">
+        <textarea v-model="searchTermModel" placeholder="Search...">
+        </textarea>
 
-<li v-for="user in filterdUsers">
-    <UserButton :user="user" />
-    <button v-show="isFriendsWithUser(user._id) === false" @click="sendRequest(user._id)">Add</button>
-</li>    
+            <ul class="">
+                <li v-for="user in filterdUsers">
+                    <div>
+                        <UserButton :user="user" />
+                        <button v-show="isFriendsWithUser(user._id) === false"
+                            @click="sendRequest(user._id)">Add</button>
+                    </div>
+                </li>
+            </ul>
 
-</div>
-    
+
+
+    </div>
+
 
 </template>

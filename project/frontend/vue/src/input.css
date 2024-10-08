@@ -9,6 +9,6 @@
     }
 
     .button-primary {
-        @apply w-full bg-green-800 py-2 text-white font-semibold rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-opacity-50;
+        @apply w-full py-2 bg-green-800 hover:bg-green-600 rounded text-sm font-bold text-gray-50 transition duration-200;
       }
   }

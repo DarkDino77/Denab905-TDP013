@@ -12,9 +12,12 @@ defineProps({
 </script>
 
 <template>
-<li v-for="friend in friends">
-
-    <UserButton :user="friend" />
-</li>
-
+    <div class="">
+        <ul>
+            <li v-for="friend in friends" > 
+            <UserButton :user="friend" />
+            </li>
+        </ul>
+        
+    </div>
 </template>

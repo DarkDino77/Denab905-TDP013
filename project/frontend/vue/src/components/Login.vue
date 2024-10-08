@@ -79,8 +79,9 @@ async function login() {
 </script>
 
 <template>
-    <div class="flex justify-center items-center h-screen bg-gray-700">
-        <form>
+    <div class="flex  justify-center items-center h-screen bg-gray-700">
+        <div class="max-w-md w-full bg-gray-900 rounded p-6">
+        <form class="flex flex-col space-y-3 bg-gray-900">
             <input 
                 v-model="usernameModel"
                 type="text" 
@@ -93,7 +94,7 @@ async function login() {
                 id="password"
                 class="text-input-primary"
                 placeholder="Password"><br>
-         <div class="flex flex-row items-center">
+         <div class="flex flex-row items-center space-x-1">
             <input 
             @click="login" 
             type="button" 
@@ -104,5 +105,6 @@ async function login() {
         </div>
         </form>
     </div>
+</div>
 </template>
 

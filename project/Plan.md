@@ -5,12 +5,13 @@
 * Express 
 * Nextjs 
 * Mongoose
-
+* Express-session
 ## Frontend 
 * HTML
 * Vue
 * BootStrap 
 * CSS
+* Tailwind
 
 # Schedule
 

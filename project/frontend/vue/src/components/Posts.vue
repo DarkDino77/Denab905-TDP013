@@ -16,8 +16,11 @@ const props = defineProps({
 
 <template>
 
-<li v-for="post in postList" >
+<ul class="space-y-1">
+    <li v-for="post in postList">
     <Post :post=post />
 </li>
+</ul>
+
 
 </template>
