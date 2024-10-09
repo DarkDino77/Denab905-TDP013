@@ -17,7 +17,7 @@ function formatDate(date) {
 
 <template>
 
-<div class="bg-sky-800 rounded-xl flex flex-col space-y-4 text-stone-300">
+<div class="bg-sky-800 rounded-xl flex flex-col space-y-4 text-stone-300 px-2">
     <div class="font-bold">
     {{ post.author  }}
     </div>

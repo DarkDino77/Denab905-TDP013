@@ -12,3 +12,12 @@
         @apply w-full py-2 bg-green-800 hover:bg-green-600 rounded text-sm font-bold text-gray-50 transition duration-200;
       }
   }
+
+  @layer utilities {
+    .bg-navy {
+        background-color: #001f3f; /* Navy Blue */
+    }
+    .text-navy {
+        color: #001f3f; /* Navy Blue */
+    }
+}

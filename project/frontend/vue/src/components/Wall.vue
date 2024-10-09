@@ -30,10 +30,10 @@ async function fetchUser(id) {
 </script>
 
 <template>
-    <div class="px-[700px]"> 
+    <div class="mx-[700px] bg-navy rounded-xl p-2"> 
         <SubmitPost @newPost="fetchUser(user._id)" :id=user._id />
         <div v-if="user.posts">
-            <Posts :postList=user.posts />
+            <Posts :postList=user.posts class="m-2"/>
         </div>
         <div v-else>
             <p>Loading</p>

@@ -28,7 +28,6 @@ async function getFriendsOfUser(id, search, lambda) {
         const reqName = await schemes.User.findById(requests[i]).select('name');
         result.push(reqName);
     }
-    console.log(result);
     return result;
 }
 
@@ -52,13 +51,16 @@ async function addFriend(userAdding, addedUser) {
 
 async function acceptRequest(userAccepting, userAccepted) {
     let user = await schemes.User.findById(userAccepting);
-    let index = user.friendRequests.find((element) => element === userAccepted) 
+    
+    let index = user.friendRequests.find((element) => {
+        return element.toString() === userAccepted;
+    }); 
+
     if (index === undefined){
-        console.log("Freind requst is not real")
-        console.log(user.friendRequests)
-        console.log(userAccepted)
-        return;
+        return false;
     }
+
+
     user.friends.push(userAccepted);
     user.friendRequests.splice(index,1);
     user.save();
@@ -67,6 +69,7 @@ async function acceptRequest(userAccepting, userAccepted) {
     acceptedUser.friends.push(userAccepting);
     acceptedUser.save();
 
+    return true;
 }
 
 async function getPostsByUser(id) {

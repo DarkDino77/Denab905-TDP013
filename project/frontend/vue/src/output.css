@@ -598,6 +598,30 @@ video {
   background-color: rgb(22 163 74 / var(--tw-bg-opacity));
 }
 
+.m-\[50px\] {
+  margin: 50px;
+}
+
+.m-4 {
+  margin: 1rem;
+}
+
+.m-6 {
+  margin: 1.5rem;
+}
+
+.m-16 {
+  margin: 4rem;
+}
+
+.m-2 {
+  margin: 0.5rem;
+}
+
+.m-1 {
+  margin: 0.25rem;
+}
+
 .mx-4 {
   margin-left: 1rem;
   margin-right: 1rem;
@@ -616,6 +640,31 @@ video {
 .my-\[100px\] {
   margin-top: 100px;
   margin-bottom: 100px;
+}
+
+.mx-\[700px\] {
+  margin-left: 700px;
+  margin-right: 700px;
+}
+
+.mx-\[200px\] {
+  margin-left: 200px;
+  margin-right: 200px;
+}
+
+.mx-\[300px\] {
+  margin-left: 300px;
+  margin-right: 300px;
+}
+
+.mx-\[100px\] {
+  margin-left: 100px;
+  margin-right: 100px;
+}
+
+.mx-\[50px\] {
+  margin-left: 50px;
+  margin-right: 50px;
 }
 
 .mb-5 {
@@ -645,6 +694,10 @@ video {
 
 .w-full {
   width: 100%;
+}
+
+.w-36 {
+  width: 9rem;
 }
 
 .max-w-md {
@@ -727,6 +780,11 @@ video {
   border-radius: 0.75rem;
 }
 
+.bg-blue-950 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(23 37 84 / var(--tw-bg-opacity));
+}
+
 .bg-gray-700 {
   --tw-bg-opacity: 1;
   background-color: rgb(55 65 81 / var(--tw-bg-opacity));
@@ -761,9 +819,21 @@ video {
   padding: 1.5rem;
 }
 
-.px-\[100px\] {
-  padding-left: 100px;
-  padding-right: 100px;
+.p-\[50px\] {
+  padding: 50px;
+}
+
+.p-2 {
+  padding: 0.5rem;
+}
+
+.p-1 {
+  padding: 0.25rem;
+}
+
+.px-\[200px\] {
+  padding-left: 200px;
+  padding-right: 200px;
 }
 
 .px-\[700px\] {
@@ -776,16 +846,17 @@ video {
   padding-bottom: 0.5rem;
 }
 
-.pl-\[100px\] {
-  padding-left: 100px;
+.px-2 {
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
 }
 
-.pr-\[100px\] {
-  padding-right: 100px;
+.pr-6 {
+  padding-right: 1.5rem;
 }
 
-.pr-\[200px\] {
-  padding-right: 200px;
+.pr-8 {
+  padding-right: 2rem;
 }
 
 .font-bold {
@@ -803,6 +874,11 @@ video {
 
 .filter {
   filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+.bg-navy {
+  background-color: #001f3f;
+  /* Navy Blue */
 }
 
 .hover\:bg-green-400:hover {

@@ -22,7 +22,6 @@ const corsOptions = {
 };
 
 const authenticate = (req, res, next) => {
-    console.log(req.session.userId)
     if (req.session.userId) {
         next();
     } else {
@@ -88,7 +87,6 @@ app.get('/auth', authenticate, async (req, res) => {
 
 app.post('/users', async (req, res) => {
     const body = req.body
-    console.log(req.body)
     body.posts = [];
     const newUser = new schemes.User(body)
 
@@ -97,7 +95,6 @@ app.post('/users', async (req, res) => {
     //console.log(find);
 
     if (find !== null) {
-        console.log("already exists");
         res.sendStatus(500);
         return;
     }
@@ -127,7 +124,6 @@ app.post('/users/:id/wall', async (req, res) => {
         //console.log(error);
         res.status(500).send(error);
     } else {
-        console.log(req.params.id)
         db.postMessageToWall(req.params.id, message);
         res.sendStatus(200);
     }
@@ -158,7 +154,7 @@ app.post('/users/:id/friends', authenticate, async (req, res) => {
 });
 
 app.patch('/users/:id/friends', authenticate, async (req, res) => {
-    // {id: "12314"}
+    
     db.acceptRequest(req.session.userId, req.params.id);
     res.sendStatus(200);
 });

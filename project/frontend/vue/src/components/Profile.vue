@@ -30,9 +30,10 @@ getFriends()
 
 <template>
     <div class="flex flex-row items-start ">
-        <FriendRequestList @acceptedFriend="getFriends()" class="px-[100px] my-[100px]" />
 
-        <Wall :id=route.params.id class="pr-[200px] pl-[100px]" />
-        <FriendList :friends="friends" class="pr-[100px] my-[100px]" />
+        <FriendRequestList @acceptedFriend="getFriends()" class="m-[50px] my-[100px]" />
+
+        <Wall :id=route.params.id class="mx-[50px] w-full " />
+        <FriendList :friends="friends" class=" m-[50px] my-[100px]" />
     </div>
 </template>
