@@ -48,7 +48,6 @@ function acceptFriend(request) {
             Friend requests
         </div>
         <ul>
-
             <li v-for="req in requests">
                 <div class="flex flex-row space-x-4 bg-sky-900 rounded-xl m-2 p-2">
                     <UserButton :user=req />

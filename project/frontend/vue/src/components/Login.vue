@@ -90,7 +90,7 @@ async function login() {
                 placeholder="Username"><br>
             <input 
                 v-model="passwordModel"
-                type="text" 
+                type="password" 
                 id="password"
                 class="text-input-primary"
                 placeholder="Password"><br>

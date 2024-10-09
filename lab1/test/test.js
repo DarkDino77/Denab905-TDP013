@@ -13,7 +13,7 @@ describe('database api tests', () => {
         const port = 3000;
         server = start_server(port, done);
         run();
-    });
+    }); 
 
     it('GET /messages should return nothing first time', 
         (done) => {

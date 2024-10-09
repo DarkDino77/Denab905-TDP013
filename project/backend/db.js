@@ -24,7 +24,6 @@ async function getFriendsOfUser(id, search, lambda) {
     requests = lambda(requests)
     let result = []
     for (let i = 0; i < requests.length; i++) {
-        // TODO: flytta till db
         const reqName = await schemes.User.findById(requests[i]).select('name');
         result.push(reqName);
     }

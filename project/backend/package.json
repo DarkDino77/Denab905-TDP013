@@ -6,19 +6,22 @@
   "type": "module",
   "scripts": {
     "start": "nodemon app.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "c8 mocha --timeout=30s --exit "
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "c8": "^10.1.2",
     "connect-mongo": "^5.1.0",
     "cors": "^2.8.5",
     "express": "^4.21.0",
     "express-session": "^1.18.0",
+    "mocha": "^10.7.3",
     "mongoose": "^8.7.0",
     "mongoose-unique-validator": "^5.0.1",
     "nodemon": "^3.1.7",
     "passport": "^0.7.0",
-    "passport-local": "^1.0.0"
+    "passport-local": "^1.0.0",
+    "superagent": "^10.1.0"
   }
 }

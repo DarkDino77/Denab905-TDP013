@@ -12,8 +12,6 @@ const port = 8080;
 
 //curl -H 'Content-Type: application/json' -d '{ "name": "dennis", "password": "mellon" }' http://localhost:8080/users -X POST;
 
-console.log("Connected");
-
 const corsOptions = {
     origin: ['http://127.0.0.1:5173', 'http://localhost:5173'],  // Allow both
     methods: ['GET', 'POST', 'PATCH', 'DELETE'],
@@ -22,6 +20,7 @@ const corsOptions = {
 };
 
 const authenticate = (req, res, next) => {
+    console.log(req.session.userId);
     if (req.session.userId) {
         next();
     } else {
@@ -34,7 +33,6 @@ app.use(express.json());
 
 await db.start_database();
 
-app.listen(port);
 
 app.use(session({
     secret: 'bla',
@@ -111,32 +109,45 @@ app.post('/users', async (req, res) => {
     res.status(200).send(response);
 });
 
-app.get('/users/:id/wall', async (req, res) => {
+app.get('/users/:id/wall', authenticate, async (req, res) => {
     let posts = await db.getPostsByUser(req.params.id);
     res.status(200).send(posts);
 });
 
-app.post('/users/:id/wall', async (req, res) => {
+app.post('/users/:id/wall',authenticate , async (req, res) => {
     const message = new schemes.Post(req.body);
 
     let error = message.validateSync();
-    if (error) {
+    if (error !== null) {
         //console.log(error);
         res.status(500).send(error);
-    } else {
-        db.postMessageToWall(req.params.id, message);
-        res.sendStatus(200);
+        return;
+    } 
+
+
+    let friends = await db.getFriendsOfUser(req.session.userId, 'friends ',
+        (obj) => obj.friends
+    );
+
+    let indexfriends = friends.find((element) => element._id === req.params.id)
+    if(req.params.id !== req.session.userId || indexfriends === undefined){
+        res.sendStatus(401);
+        return;
     }
+
+    db.postMessageToWall(req.params.id, message);
+    res.sendStatus(200);
+    
 });
 
-app.get('/friends', async (req, res) => {
+app.get('/friends',authenticate, async (req, res) => {
     let friends = await db.getFriendsOfUser(req.session.userId, 'friends ',
         (obj) => obj.friends
     );
     res.status(200).send(friends);
 });
 
-app.get('/requests', async (req, res) => {
+app.get('/requests',authenticate, async (req, res) => {
     let friends = await db.getFriendsOfUser(req.session.userId, 'friendRequests ',
         (obj) => obj.friendRequests
     );
@@ -179,3 +190,20 @@ app.get('/delete', async (req, res) => {
     mongoose.connection.db.dropDatabase();
     res.sendStatus(200);
 });
+
+function start_server(port, callback) {
+    console.log('Starting server...');
+    return app.listen(port, () => {
+        callback && callback();
+    });   
+}
+
+function clear_server() {
+    mongoose.connection.db.dropDatabase();
+}
+
+if (process.argv[1] === new URL(import.meta.url).pathname) {
+    start_server(port);
+}
+
+export { start_server, clear_server }
