@@ -80,3 +80,4 @@ For detailed MongoDB installation instructions, refer to the official documentat
 
 https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-ubuntu/
 
+npx tailwindcss -i ./src/input.css -o ./src/output.css --watch

@@ -12,7 +12,7 @@ function searchRedirect() {
 
 
 <template>
-    <button @click="searchRedirect">
+    <button  @click="searchRedirect">
         Search
     </button>
 </template>

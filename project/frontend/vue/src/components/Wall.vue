@@ -10,16 +10,19 @@ const router = useRouter();
 const route = useRoute();
 let user = ref('user');
 
-defineProps({
-    id: {
-        type: String,
-        required: true
-    }
-});
+// defineProps({
+//     id: {
+//         type: String,
+//         required: true
+//     }
+// });
 
 watch(() => route.params.id, fetchUser, { immediate: true });
 
 async function fetchUser(id) {
+    console.log(route.params.id);
+    console.log(id);
+    console.log(id);
     const contents = await utils.fetchUser(id);
     user.value = contents;
 }
@@ -27,7 +30,7 @@ async function fetchUser(id) {
 </script>
 
 <template>
-    <div>
+    <div class="px-[700px]"> 
         <SubmitPost @newPost="fetchUser(user._id)" :id=user._id />
         <div v-if="user.posts">
             <Posts :postList=user.posts />

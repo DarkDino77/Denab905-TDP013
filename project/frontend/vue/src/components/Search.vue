@@ -81,16 +81,21 @@ function isFriendsWithUser(id) {
 
 <template>
 
-    <div class="flex flex-col justify-center content-center">
-        <textarea v-model="searchTermModel" placeholder="Search...">
+    <div class="flex flex-col justify-center content-center px-[700px]">
+        <textarea v-model="searchTermModel" placeholder="Search..." 
+        class="resize-none">
         </textarea>
 
-            <ul class="">
-                <li v-for="user in filterdUsers">
-                    <div>
+            <ul class="space-y-1">
+                <li  v-for="user in filterdUsers">
+                    <div class="flex flex-row space-x-4 bg-sky-900 rounded-xl py-2 my-2">
                         <UserButton :user="user" />
-                        <button v-show="isFriendsWithUser(user._id) === false"
-                            @click="sendRequest(user._id)">Add</button>
+                        <div v-if="isFriendsWithUser(user._id) === false" class="flex-grow">
+                        <button 
+                            @click="sendRequest(user._id)"
+                            class="button-primary bg-green-600 hover:bg-green-400">Add</button>
+                    
+                        </div>
                     </div>
                 </li>
             </ul>

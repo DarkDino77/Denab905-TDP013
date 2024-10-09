@@ -12,7 +12,10 @@ defineProps({
 </script>
 
 <template>
-    <div class="">
+    <div class="w-full text-stone-300">
+        <div class="bg-sky-900 ">
+            Friend List
+        </div>
         <ul>
             <li v-for="friend in friends" > 
             <UserButton :user="friend" />

@@ -20,7 +20,7 @@ function goToProfile(id) {
 </script>
 
 <template>
-    <div class="color-blue-600">
-        <button @click="goToProfile(user._id)">{{ user.name  }}</button>
+    <div class="flex-grow" >
+        <button @click="goToProfile(user._id)" class="button-primary bg-sky-900 ">{{ user.name  }}</button>
     </div>
 </template>

@@ -1,3 +1,5 @@
+import * as store from './store.js';
+
 async function fetchUser(id) {
     const path = `http://localhost:8080/users/${id}`;
 
@@ -34,4 +36,10 @@ async function getFriends() {
     }
 }
 
-export { fetchUser, getFriends };
+function isLoggedIn() {
+    const userStore = store.loggedInUserStore();
+    const userId = userStore.getId();
+    return userId !== undefined;
+}
+
+export { fetchUser, getFriends, isLoggedIn };

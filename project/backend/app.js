@@ -165,14 +165,12 @@ app.patch('/users/:id/friends', authenticate, async (req, res) => {
 
 app.get('/users/:id', authenticate, async (req, res) => {
     const id = req.params.id
-    const users = await schemes.User.findById(id).exec();
-    if (false && id !== req.session.userId ) {
-        console.log("No access");
-        res.sendStatus(401);
-        return;
+    if (mongoose.isValidObjectId(req.params.id)) {
+        const users = await schemes.User.findById(id).exec();
+        res.status(200).send(users);
+    } else {
+        res.sendStatus(405);
     }
-
-    res.status(200).send(users);
 });
 
 app.get('/users', async (req, res) => {
