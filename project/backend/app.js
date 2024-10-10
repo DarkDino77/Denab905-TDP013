@@ -19,8 +19,12 @@ const corsOptions = {
     credentials: true
 };
 
+function isValidId(id) {
+    return mongoose.isValidObjectId(id);
+}
+
 const authenticate = (req, res, next) => {
-    if (req.session.userId) {
+    if (req.session.userId && isValidId(req.session.userId)) {
         next();
     } else {
         res.sendStatus(401);
@@ -82,7 +86,11 @@ app.get('/auth', authenticate, async (req, res) => {
 
 app.post('/users', async (req, res) => {
     const body = req.body
+
     body.posts = [];
+    body.friendRequests = [];
+    body.friends = [];
+
     const newUser = new schemes.User(body)
 
     let error = newUser.validateSync();
@@ -107,8 +115,10 @@ app.post('/users', async (req, res) => {
 });
 
 app.get('/users/:id/wall', authenticate, async (req, res) => {
+    if (!isValidId(req.params.id)) 
+        return res.sendStatus(400);
     let posts = await db.getPostsByUser(req.params.id);
-
+    
     if (posts !== undefined) {
         res.status(200).send(posts);
     } else {
@@ -129,7 +139,13 @@ app.get('/users/:id/wall', authenticate, async (req, res) => {
 */
 
 app.post('/users/:id/wall', authenticate, async (req, res) => {
+    if (!isValidId(req.params.id)) {
+        res.sendStatus(400);
+        return;
+    }
+
     const message = new schemes.Post(req.body);
+    message.author = req.session.name;
 
     let error = message.validateSync();
     if (error !== undefined) {
@@ -150,8 +166,6 @@ app.post('/users/:id/wall', authenticate, async (req, res) => {
 
         res.sendStatus(200);
     }
-
-
 });
 
 app.get('/friends', authenticate, async (req, res) => {
@@ -169,9 +183,7 @@ app.get('/requests', authenticate, async (req, res) => {
 });
 
 app.post('/users/:id/friends', authenticate, async (req, res) => {
-    // {id: "12314"}
-
-    if (req.session.userId.toString() !== req.params.id) {
+    if (isValidId(req.params.id) && req.session.userId.toString() !== req.params.id) {
         const result = await db.addFriend(req.session.userId, req.params.id);
         if (result)
             res.sendStatus(200);
@@ -184,6 +196,11 @@ app.post('/users/:id/friends', authenticate, async (req, res) => {
 });
 
 app.patch('/users/:id/friends', authenticate, async (req, res) => {
+    if (!isValidId(req.params.id)) {
+        res.sendStatus(400);
+        return;
+    }
+
     const result = await db.acceptRequest(req.session.userId, req.params.id);
     if (result)
         res.sendStatus(200);
@@ -194,7 +211,7 @@ app.patch('/users/:id/friends', authenticate, async (req, res) => {
 app.get('/users/:id', authenticate, async (req, res) => {
     const id = req.params.id
 
-    if (mongoose.isValidObjectId(req.params.id)) {
+    if (isValidId(req.params.id)) {
         const users = await schemes.User.findById(id).exec();
 
         if (users) {

@@ -546,13 +546,12 @@ describe('Errors', (done) => {
                 done();
             });
     });
-    
+
     it('Trying to fetch user with incorrect ID should return status code 400', (done) => {
         superagent
-        .get(`${api}/users/asdsdsa`)
-        .set("cookie", cookies[1])
-        .end((err, res) => {
-                console.log("asdasdas")
+            .get(`${api}/users/asdsdsa`)
+            .set("cookie", cookies[1])
+            .end((err, res) => {
                 assert.equal(res.status, 400);
                 done();
             });
@@ -561,23 +560,84 @@ describe('Errors', (done) => {
     it('Trying to fetch user with valid but nonexistent ID should return status code 400', (done) => {
         const id = "507f1f77bcf86cd799439011";
         superagent
-        .get(`${api}/users/${id}`)
-        .set("cookie", cookies[1])
-        .end((err, res) => {
+            .get(`${api}/users/${id}`)
+            .set("cookie", cookies[1])
+            .end((err, res) => {
                 assert.equal(res.status, 400);
                 done();
             });
     });
 
     it('Trying to accept a request that doesnt exist should return 409', (done) => {
+        superagent
+            .patch(`${api}/users/${ids[0]}/friends`)
+            .set("cookie", cookies[1])
+            .end(async (err, res) => {
+                assert.equal(409, res.status);
+                done();
+            });
+    });
+
+    it('Trying to register account with parameters should return 400', (done) => {
+        const request = {
+            "asdsas" : "öööööö"
+        };
+        
+        superagent
+            .post(`${api}/users`)
+            .send(request)
+            .end((err, res) => {
+                assert.equal(res.status, 400);
+                done();
+            });
+    });
+
+    it('Trying to fetch user with invalid parameters should return 400', (done) => {
+        superagent
+            .get(`${api}/users/asdasdasd/wall`)
+            .set("cookie", cookies[0])
+            .end((err, res) => {
+                assert.equal(res.status, 400);
+                done();
+            });
+    });
+
+    it('Trying to fetch wall with valid but nonexistent ID should return status code 400', (done) => {
+        const id = "507f1f77bcf86cd799439011";
+        superagent
+            .get(`${api}/users/${id}/wall`)
+            .set("cookie", cookies[1])
+            .end((err, res) => {
+                assert.equal(res.status, 400);
+                done();
+            });
+    });
+
+    it('Trying to fetch wall with valid but nonexistent ID should return status code 400', (done) => {
+        const id = "abc";
+        const request = {
+            "message": "abc",
+            "author": "dennis"
+        };
 
         superagent
-        .patch(`${api}/users/${ids[0]}/friends`)
-        .set("cookie", cookies[1])
-        .end(async (err, res) => {
-            assert.equal(409, res.status);
-            done();
-        });
+            .post(`${api}/users/${id}/wall`)
+            .set("cookie", cookies[1])
+            .send(request)
+            .end((err, res) => {
+                assert.equal(res.status, 400);
+                done();
+            });
+    });
+
+    it('Trying to accept a request with invalid ID should return 400', (done) => {
+        superagent
+            .patch(`${api}/users/abcdef/friends`)
+            .set("cookie", cookies[1])
+            .end(async (err, res) => {
+                assert.equal(400, res.status);
+                done();
+            });
     });
 
 });

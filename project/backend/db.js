@@ -27,7 +27,7 @@ async function getFriendsOfUser(id, search, lambda) {
         const reqName = await schemes.User.findById(requests[i]).select('name');
         result.push(reqName);
     }
-    
+
     return result;
 }
 
@@ -82,8 +82,11 @@ async function acceptRequest(userAccepting, userAccepted) {
 }
 
 async function getPostsByUser(id) {
-    let user = await schemes.User.findById(id);
-    return user.posts;
+    let user = await schemes.User.findById(id).exec();
+    if (user)
+        return user.posts;
+    else
+        return undefined;
 }
 
 async function findUser(query) {
