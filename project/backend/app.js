@@ -63,7 +63,6 @@ app.post('/login', async (req, res) => {
         return;
     }
 
-    //console.log("found");
     req.session.userId = result._id;
     req.session.name = result.name;
 
@@ -87,29 +86,34 @@ app.post('/users', async (req, res) => {
     const newUser = new schemes.User(body)
 
     let error = newUser.validateSync();
-    let find = await db.findUser({ name: newUser.name });
-    //console.log(find);
-
-    if (find !== null) {
-        res.sendStatus(500);
-        return;
-    }
 
     if (error) {
-        res.status(500).send(error.message)
+        res.status(400).send(error.message)
         return;
     }
 
-    let response = await db.saveUser(newUser);
+    let find = await db.findUser({ name: newUser.name });
 
-    //const users = await schemes.User.findById(id).exec();
+    if (find !== null) {
+        res.sendStatus(409);
+        return;
+    }
+
+
+
+    let response = await db.saveUser(newUser);
 
     res.status(200).send(response);
 });
 
 app.get('/users/:id/wall', authenticate, async (req, res) => {
     let posts = await db.getPostsByUser(req.params.id);
-    res.status(200).send(posts);
+
+    if (posts !== undefined) {
+        res.status(200).send(posts);
+    } else {
+        res.sendStatus(400);
+    }
 });
 
 /*
@@ -132,7 +136,6 @@ app.post('/users/:id/wall', authenticate, async (req, res) => {
         res.status(400).send(error);
         return;
     }
-
 
     let friends = await db.getFriendsOfUser(req.session.userId, 'friends ',
         (obj) => obj.friends
@@ -167,30 +170,40 @@ app.get('/requests', authenticate, async (req, res) => {
 
 app.post('/users/:id/friends', authenticate, async (req, res) => {
     // {id: "12314"}
-    if (req.session.userId !== req.params.id) {
+
+    if (req.session.userId.toString() !== req.params.id) {
         const result = await db.addFriend(req.session.userId, req.params.id);
         if (result)
             res.sendStatus(200);
-        else 
+        else
             res.sendStatus(409);
+
     } else {
         res.sendStatus(400);
     }
 });
 
 app.patch('/users/:id/friends', authenticate, async (req, res) => {
-
-    db.acceptRequest(req.session.userId, req.params.id);
-    res.sendStatus(200);
+    const result = await db.acceptRequest(req.session.userId, req.params.id);
+    if (result)
+        res.sendStatus(200);
+    else
+        res.sendStatus(409);
 });
 
 app.get('/users/:id', authenticate, async (req, res) => {
     const id = req.params.id
+
     if (mongoose.isValidObjectId(req.params.id)) {
         const users = await schemes.User.findById(id).exec();
-        res.status(200).send(users);
+
+        if (users) {
+            res.status(200).send(users);
+        } else {
+            res.sendStatus(400);
+        }
     } else {
-        res.sendStatus(405);
+        res.sendStatus(400);
     }
 });
 
@@ -200,10 +213,10 @@ app.get('/users', async (req, res) => {
     res.status(200).send(users);
 });
 
-app.get('/delete', async (req, res) => {
-    mongoose.connection.db.dropDatabase();
-    res.sendStatus(200);
-});
+// app.get('/delete', async (req, res) => {
+//     mongoose.connection.db.dropDatabase();
+//     res.sendStatus(200);
+// });
 
 function start_server(port, callback) {
     console.log('Starting server...');
@@ -212,9 +225,9 @@ function start_server(port, callback) {
     });
 }
 
-async function close_server() {
-    db.closeDatabase();
-}
+// async function close_server() {
+//     db.closeDatabase();
+// }
 
 async function clear_server() {
     await mongoose.connection.db.dropDatabase();

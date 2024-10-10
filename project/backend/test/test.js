@@ -3,6 +3,7 @@ import superagent from 'superagent';
 import { start_server, clear_server } from '../app.js';
 import { Cookie } from 'express-session';
 import * as db from '../db.js';
+import mongoose from 'mongoose';
 
 const port = 8080;
 let api = 'http://localhost:' + port;
@@ -193,6 +194,19 @@ describe('database api tests', () => {
             });
     });
 
+    it('Trying to get messages from own wall should return code 200', (done) => {
+        superagent
+            .get(`${api}/users/${userId}/wall`)
+            .set("cookie", cookie)
+            .end((err, res) => {
+                if (err) return done(err);
+
+                assert.equal(res.status, 200);
+
+                done();
+            });
+    });
+
     it('Logging out and then trying to access posts should return in status code 401', (done) => {
         superagent
             .get(`${api}/logout`)
@@ -215,7 +229,7 @@ describe('database api tests', () => {
                     });
 
             });
-    })
+    });
 
     after((done) => {
         server.close(() => done());
@@ -288,7 +302,6 @@ describe('Registering multiple users', () => {
         }
 
         let cookie = cookies[0];
-        console.log(cookies);
 
         // Log in to user 1
         superagent
@@ -332,106 +345,239 @@ describe('Registering multiple users', () => {
     });
 
 
-    it('Posting a message to a friends wall should return 200 and add the message', (done) => {
+
+    it('Posting a friend request should return 200 and add the person as friend', (done) => {
         const senderId = ids[0];
         const friendId = ids[1];
         const senderSession = cookies[0];
-        const friendSession = cookies[0];
-
         superagent
             .post(`${api}/users/${friendId}/friends`)
             .set("cookie", senderSession)
             .end(async (err, res) => {
-                if (err) done(err);
+                if (err) return done(err);
 
                 assert.equal(res.status, 200);
-
-                {
-                    const friendRequests = await db.getFriendsOfUser(friendId, 'friendRequests ',
-                        (obj) => obj.friendRequests);
-                    const index = friendRequests.find((item) => {
-                        return item._id == senderId;
-                    });
-
-                    assert.notEqual(index, undefined);
-                }
-
-                // TODO: kolla så man inte kan skicka friend request igen
-                // Check that a friend request can't be send twice
-                await superagent
-                    .post(`${api}/users/${friendId}/friends`)
-                    .set("cookie", senderSession)
-                    .end(async (err, res) => {
-                        assert.equal(res.status, 409);
-                    });
-
-                await superagent
-                    .patch(`${api}/users/${friendId}/friends`)
-                    .set("cookie", friendSession)
-                    .end((err, res) => {
-                        if (err) return done(err);
-                        assert.equal(res.status, 200);
-
-                        return done();
-                    });
-
-                {
-                    // Ćheck that the sender gets added
-                    const friendsOfFriend = await db.getFriendsOfUser(friendId, 'friends',
-                        (obj) => obj.friends);
-                    const friendsOfFriendIndex = friendsOfFriend.find((item) => {
-                        return item._id == senderId;
-                    });
-
-                    assert.notEqual(friendsOfFriendIndex, undefined);
-                }
-
-                {
-                    // Ćheck that the friend gets added to the sender
-                    let friendsOfSender = await db.getFriendsOfUser(senderId, 'friends',
-                        (obj) => obj.friends);
-                    const friendsOfSenderIndex = friendsOfSender.find((item) => {
-                        return item._id == friendId;
-                    });
-
-                    assert.notEqual(friendsOfSenderIndex, undefined);
-                }
-
-                {
-                    // Check that the request is removed
-                    const friendRequests = await db.getFriendsOfUser(friendId, 'friendRequests',
-                        (obj) => obj.friends);
-                    const requestIndex = friendRequests.find((item) => {
-                        return item._id == senderId;
-                    });
-
-                    assert.equal(requestIndex, undefined);
-                }
-
-                const request = {
-                    "message": "abc",
-                    "author": usernames[0],
-                    "date": Date.now()
-                };
-
-                await superagent
-                    .post(`${api}/users/${friendId}/wall`)
-                    .set("cookie", senderSession)
-                    .send(request)
-                    .end((err, res) => {
-                        // Verify that the status code was 401 (authentication error)
-                        assert.equal(res.status, 200);
-
-                        // Verify that the post wasn't created
-                        // TODO: denna funktion borde heta typ getPostsOnUsersWall
-                        db.getPostsByUser(friendId)
-                            .then((res) => {
-                                assert.equal(res.length, 1);
-                                done();
-                            })
-                            .catch(() => done()); // Catch behövs tydligen om assert blir false
-                    })
-                    .then(() => done());
+                const friendRequests = await db.getFriendsOfUser(friendId, 'friendRequests ',
+                    (obj) => obj.friendRequests);
+                const index = friendRequests.find((item) => {
+                    return item._id == senderId;
+                });
+                assert.notEqual(index, undefined);
+                done();
             });
     });
+
+    it("Users shouldn't be able to send requests to persons they are already friends with", (done) => {
+        const friendId = ids[1];
+        const senderSession = cookies[0];
+
+        superagent
+            .post(`${api}/users/${friendId}/friends`)
+            .set("cookie", senderSession)
+            .end((err, res) => {
+                assert.equal(res.status, 409);
+                done();
+            });
+
+    });
+
+    it('Accepting a friend request should return code 200 and added the friend to list', (done) => {
+        const friendId = ids[1];
+        const senderId = ids[0];
+        const friendSession = cookies[1];
+
+        superagent
+            .patch(`${api}/users/${senderId}/friends`)
+            .set("cookie", friendSession)
+            .end(async (err, res) => {
+                if (err) return done(err);
+                assert.equal(res.status, 200);
+
+
+                const friends = await db.getFriendsOfUser(friendId, 'friends', (obj) => obj.friends);
+                const friendsOfFriendIndex = friends.find((item) => {
+                    return item._id == senderId;
+                });
+
+
+                assert.notEqual(friendsOfFriendIndex, undefined);
+
+                const friendsOfSender = await db.getFriendsOfUser(senderId, 'friends',
+                    (obj) => obj.friends);
+                const friendsOfSenderIndex = friendsOfSender.find((item) => {
+                    return item._id == friendId;
+                });
+
+                assert.notEqual(friendsOfSenderIndex, undefined);
+
+                // Check that the request is removed
+                const friendRequests = await db.getFriendsOfUser(friendId, 'friendRequests',
+                    (obj) => obj.friendRequests);
+                const requestIndex = friendRequests.find((item) => {
+                    return item._id == senderId;
+                });
+
+                assert.equal(requestIndex, undefined);
+
+                done();
+            });
+    });
+
+    it('Post a message to a friends wall', (done) => {
+        const senderId = ids[0];
+        const friendId = ids[1];
+        const senderSession = cookies[0];
+        const friendSession = cookies[1];
+
+        const request = {
+            "message": "abc",
+            "author": usernames[0],
+            "date": Date.now()
+        };
+
+        // Have user 1 post a message to user 2's wall
+        superagent
+            .post(`${api}/users/${friendId}/wall`)
+            .set("cookie", senderSession)
+            .send(request)
+            .end((err, res) => {
+                if (err) return done(err);
+                assert.equal(res.status, 200);
+
+                db.getPostsByUser(friendId)
+                    .then((res) => {
+                        assert.equal(res.length, 1);
+                    })
+            });
+        superagent
+            .post(`${api}/users/${senderId}/wall`)
+            .set("cookie", friendSession)
+            .send(request)
+            .end((err, res) => {
+                if (err) return done(err);
+                assert.equal(res.status, 200);
+
+                db.getPostsByUser(senderId)
+                    .then((res) => {
+                        assert.equal(res.length, 1);
+                        done();
+                    })
+            });
+    });
+
+    after((done) => {
+        server.close(() => done());
+    });
+});
+
+describe('Errors', (done) => {
+    const usernames = ['elvin', 'dennis'];
+    let ids = [];
+    let cookies = [];
+
+    before((done) => {
+        // Start the server
+        server = start_server(port);
+
+        // Clear the server database and register several users
+        clear_server()
+            .then(async () => {
+                for (let i = 0; i < usernames.length; i++) {
+                    const request = {
+                        "name": usernames[i],
+                        "password": "a"
+                    };
+
+                    await superagent
+                        .post(`${api}/users`)
+                        .send(request)
+                        .then(async (createRes) => {
+                            ids.push(createRes.body._id);
+                            // Login
+                            await superagent
+                                .post(`${api}/login`)
+                                .send(request)
+                                .then((loginRes) => {
+                                    cookies.push(loginRes.headers['set-cookie'].pop().split(';')[0]);
+                                });
+                        });
+                }
+            })
+            .then(() => done())
+            .catch((err) => done(err));
+    });
+
+    it('Logging in with incorrect username/password should return code 400', (done) => {
+        const request = {
+            "name": "asdfg",
+            "password": "aasdsdd"
+        };
+
+        superagent
+            .post(`${api}/login`)
+            .send(request)
+            .end((err, res) => {
+                assert.equal(res.status, 400);
+                done();
+            });
+    });
+
+    it('Trying to register with an already taken username should return 409', (done) => {
+        const request = {
+            "name": "dennis",
+            "password": "a"
+        };
+
+        superagent
+            .post(`${api}/users`)
+            .send(request)
+            .end((err, res) => {
+                assert.equal(res.status, 409);
+                done();
+            });
+    });
+
+    it('Trying to add self as friend should return 400', (done) => {
+        superagent
+            .post(`${api}/users/${ids[1]}/friends`)
+            .set("cookie", cookies[1])
+            .end((err, res) => {
+                assert.equal(res.status, 400);
+                done();
+            });
+    });
+    
+    it('Trying to fetch user with incorrect ID should return status code 400', (done) => {
+        superagent
+        .get(`${api}/users/asdsdsa`)
+        .set("cookie", cookies[1])
+        .end((err, res) => {
+                console.log("asdasdas")
+                assert.equal(res.status, 400);
+                done();
+            });
+    });
+
+    it('Trying to fetch user with valid but nonexistent ID should return status code 400', (done) => {
+        const id = "507f1f77bcf86cd799439011";
+        superagent
+        .get(`${api}/users/${id}`)
+        .set("cookie", cookies[1])
+        .end((err, res) => {
+                assert.equal(res.status, 400);
+                done();
+            });
+    });
+
+    it('Trying to accept a request that doesnt exist should return 409', (done) => {
+
+        superagent
+        .patch(`${api}/users/${ids[0]}/friends`)
+        .set("cookie", cookies[1])
+        .end(async (err, res) => {
+            assert.equal(409, res.status);
+            done();
+        });
+    });
+
 });

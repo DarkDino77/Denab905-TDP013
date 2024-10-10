@@ -27,7 +27,7 @@ async function getFriendsOfUser(id, search, lambda) {
         const reqName = await schemes.User.findById(requests[i]).select('name');
         result.push(reqName);
     }
-
+    
     return result;
 }
 
@@ -35,13 +35,15 @@ async function addFriend(userAdding, addedUser) {
     
     let user = await schemes.User.findById(addedUser);
     let indexfriendRequests = user.friendRequests.find((element) => {
-        return element === userAdding
+        return element === userAdding.toString()
     }) 
-    let indexfriends = user.friends.find((element) => element === userAdding)
+    
+    let indexfriends = user.friends.find((element) => {
+        return element === userAdding.toString()})
     
     if (indexfriendRequests === undefined && indexfriends === undefined){
-        user.friendRequests.push(userAdding);
-        user.save();
+        user.friendRequests.push(userAdding.toString());
+        await user.save();
 
         return true;
     }
@@ -52,10 +54,11 @@ async function addFriend(userAdding, addedUser) {
 }
 
 async function acceptRequest(userAccepting, userAccepted) {
-    let user = await schemes.User.findById(userAccepting);
-    
+    let user = await schemes.User.findById(userAccepting.toString());
+   
+
     let index = user.friendRequests.find((element) => {
-        return element.toString() === userAccepted;
+        return element === userAccepted;
     }); 
 
     if (index === undefined){
@@ -65,11 +68,15 @@ async function acceptRequest(userAccepting, userAccepted) {
 
     user.friends.push(userAccepted);
     user.friendRequests.splice(index,1);
-    user.save();
+
+    await user.save();
 
     let acceptedUser = await schemes.User.findById(userAccepted);
-    acceptedUser.friends.push(userAccepting);
-    acceptedUser.save();
+    acceptedUser.friends.push(userAccepting.toString());
+
+    await acceptedUser.save();
+
+    
 
     return true;
 }
