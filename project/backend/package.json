@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "start": "nodemon app.js",
-    "test": "c8 mocha --timeout=30s --exit "
+    "test": "c8 mocha --timeout=30s --exit"
   },
   "author": "",
   "license": "ISC",

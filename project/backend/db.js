@@ -27,6 +27,7 @@ async function getFriendsOfUser(id, search, lambda) {
         const reqName = await schemes.User.findById(requests[i]).select('name');
         result.push(reqName);
     }
+
     return result;
 }
 
@@ -40,12 +41,14 @@ async function addFriend(userAdding, addedUser) {
     
     if (indexfriendRequests === undefined && indexfriends === undefined){
         user.friendRequests.push(userAdding);
+        user.save();
+
+        return true;
     }
     else {
-        return;
+        return false;
     }
     
-    user.save();
 }
 
 async function acceptRequest(userAccepting, userAccepted) {

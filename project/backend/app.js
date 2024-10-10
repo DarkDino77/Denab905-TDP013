@@ -20,7 +20,6 @@ const corsOptions = {
 };
 
 const authenticate = (req, res, next) => {
-    console.log(req.session.userId);
     if (req.session.userId) {
         next();
     } else {
@@ -32,7 +31,6 @@ app.use(cors(corsOptions));
 app.use(express.json());
 
 await db.start_database();
-
 
 app.use(session({
     secret: 'bla',
@@ -47,7 +45,7 @@ app.use(session({
         autoRemoveInterval: 1
     }),
     cookie: {
-        maxAge: 24 * 60 * 60 * 1000 ,
+        maxAge: 24 * 60 * 60 * 1000,
         httpOnly: true,
     }
 }));
@@ -69,10 +67,10 @@ app.post('/login', async (req, res) => {
     req.session.userId = result._id;
     req.session.name = result.name;
 
-    res.status(200).send({ id: req.session.userId, name: req.session.name } );
+    res.status(200).send({ id: req.session.userId, name: req.session.name });
 });
 
-app.get('/logout', async (req, res) => {
+app.get('/logout', authenticate, async (req, res) => {
     req.session.destroy();
     res.sendStatus(200);
 });
@@ -89,7 +87,7 @@ app.post('/users', async (req, res) => {
     const newUser = new schemes.User(body)
 
     let error = newUser.validateSync();
-    let find = await db.findUser({name: newUser.name});
+    let find = await db.findUser({ name: newUser.name });
     //console.log(find);
 
     if (find !== null) {
@@ -114,40 +112,53 @@ app.get('/users/:id/wall', authenticate, async (req, res) => {
     res.status(200).send(posts);
 });
 
-app.post('/users/:id/wall',authenticate , async (req, res) => {
+/*
+    TODO:
+        - Returkoder:
+            - 200 för POST och PATCH om OK
+            - 400 för POST och PATCH om felaktiga parametrar
+            - 401 för authentication errors
+            - 405 om fel metod
+            - 404 om sidan ej finns
+            - 409 conflict
+            - 500 för alla andra fel
+*/
+
+app.post('/users/:id/wall', authenticate, async (req, res) => {
     const message = new schemes.Post(req.body);
 
     let error = message.validateSync();
-    if (error !== null) {
-        //console.log(error);
-        res.status(500).send(error);
+    if (error !== undefined) {
+        res.status(400).send(error);
         return;
-    } 
+    }
 
 
     let friends = await db.getFriendsOfUser(req.session.userId, 'friends ',
         (obj) => obj.friends
     );
 
-    let indexfriends = friends.find((element) => element._id === req.params.id)
-    if(req.params.id !== req.session.userId || indexfriends === undefined){
+    let indexfriends = friends.find((element) => element._id.toString() === req.params.id)
+
+    if (req.params.id !== req.session.userId.toString() && indexfriends === undefined) {
         res.sendStatus(401);
-        return;
+    } else {
+        await db.postMessageToWall(req.params.id, message);
+
+        res.sendStatus(200);
     }
 
-    db.postMessageToWall(req.params.id, message);
-    res.sendStatus(200);
-    
+
 });
 
-app.get('/friends',authenticate, async (req, res) => {
+app.get('/friends', authenticate, async (req, res) => {
     let friends = await db.getFriendsOfUser(req.session.userId, 'friends ',
         (obj) => obj.friends
     );
     res.status(200).send(friends);
 });
 
-app.get('/requests',authenticate, async (req, res) => {
+app.get('/requests', authenticate, async (req, res) => {
     let friends = await db.getFriendsOfUser(req.session.userId, 'friendRequests ',
         (obj) => obj.friendRequests
     );
@@ -157,15 +168,18 @@ app.get('/requests',authenticate, async (req, res) => {
 app.post('/users/:id/friends', authenticate, async (req, res) => {
     // {id: "12314"}
     if (req.session.userId !== req.params.id) {
-        db.addFriend(req.session.userId, req.params.id);
-        res.sendStatus(200);
+        const result = await db.addFriend(req.session.userId, req.params.id);
+        if (result)
+            res.sendStatus(200);
+        else 
+            res.sendStatus(409);
     } else {
         res.sendStatus(400);
     }
 });
 
 app.patch('/users/:id/friends', authenticate, async (req, res) => {
-    
+
     db.acceptRequest(req.session.userId, req.params.id);
     res.sendStatus(200);
 });
@@ -195,11 +209,15 @@ function start_server(port, callback) {
     console.log('Starting server...');
     return app.listen(port, () => {
         callback && callback();
-    });   
+    });
 }
 
-function clear_server() {
-    mongoose.connection.db.dropDatabase();
+async function close_server() {
+    db.closeDatabase();
+}
+
+async function clear_server() {
+    await mongoose.connection.db.dropDatabase();
 }
 
 if (process.argv[1] === new URL(import.meta.url).pathname) {
