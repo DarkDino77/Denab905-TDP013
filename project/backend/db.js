@@ -1,5 +1,7 @@
 import mongoose from 'mongoose';
 import * as schemes from './scheme.js';
+import CryptoJS from 'crypto-js';
+
 
 // TODO: felhantering så inte allting kraschar så fort något går fel
 
@@ -90,10 +92,12 @@ async function getPostsByUser(id) {
 }
 
 async function findUser(query) {
-    return schemes.User.findOne(query).exec();
+    const user = schemes.User.findOne(query).exec();
+    return user;
 }
 
 async function saveUser(user) {
+    user.password = CryptoJS.SHA256(user.password).toString(CryptoJS.enc.Hex);
     return user.save();
 }
 

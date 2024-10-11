@@ -3,6 +3,8 @@
 import { useRouter } from 'vue-router';
 import SearchButton from './SearchButton.vue';
 import * as store from '../store.js';
+import bcrypt from 'bcryptjs';
+import CryptoJS from 'crypto-js';
 
 const usernameModel = defineModel('username');
 const passwordModel = defineModel('password');
@@ -31,10 +33,13 @@ async function authenticate() {
 
 authenticate();
 
-function register() {
+async function register() {
+    const hashedPassword = await hashPassword(passwordModel.value);
+    console.log(hashedPassword);
+
     const request = {
         "name": "" + usernameModel.value,
-        "password": "" + passwordModel.value
+        "password": "" + hashedPassword
     };
 
     fetch("http://localhost:8080/users", {
@@ -49,9 +54,11 @@ function register() {
 }
 
 async function login() {
+    const hashedPassword = await hashPassword(passwordModel.value);
+    console.log(hashedPassword);
     const request = {
         "name": "" + usernameModel.value,
-        "password": "" + passwordModel.value
+        "password": "" + hashedPassword
     };
 
     const result = await fetch("http://localhost:8080/login", {
@@ -74,6 +81,13 @@ async function login() {
     } else {
         console.log("Incorrect username/password");
     }
+}
+
+async function hashPassword(password)
+{
+    const hashed = CryptoJS.SHA256(password).toString(CryptoJS.enc.Hex);
+    console.log(hashed);
+    return hashed;
 }
 
 </script>

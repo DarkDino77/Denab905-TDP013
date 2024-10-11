@@ -232,6 +232,7 @@ describe('database api tests', () => {
     });
 
     after((done) => {
+        clear_server();
         server.close(() => done());
     });
 });
@@ -464,8 +465,9 @@ describe('Registering multiple users', () => {
                     })
             });
     });
-
+    
     after((done) => {
+        clear_server();
         server.close(() => done());
     });
 });
@@ -638,6 +640,11 @@ describe('Errors', (done) => {
                 assert.equal(400, res.status);
                 done();
             });
+    });
+
+    after((done) => {
+        clear_server();
+        server.close(() => done());
     });
 
 });

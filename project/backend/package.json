@@ -11,9 +11,11 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "bcryptjs": "^2.4.3",
     "c8": "^10.1.2",
     "connect-mongo": "^5.1.0",
     "cors": "^2.8.5",
+    "crypto-js": "^4.2.0",
     "express": "^4.21.0",
     "express-session": "^1.18.0",
     "mocha": "^10.7.3",

@@ -5,7 +5,7 @@ import session from 'express-session';
 import MongoStore from 'connect-mongo';
 import mongoose from 'mongoose';
 import cors from 'cors';
-
+import CryptoJS from 'crypto-js';
 
 const app = express();
 const port = 8080;
@@ -60,6 +60,8 @@ app.use((req, res, next) => {
 
 app.post('/login', async (req, res) => {
     const login = new schemes.LoginRequest(req.body);
+    login.password = CryptoJS.SHA256(login.password).toString(CryptoJS.enc.Hex);
+
     let result = await db.findUser(login);
 
     if (result === null) {
@@ -107,18 +109,16 @@ app.post('/users', async (req, res) => {
         return;
     }
 
-
-
     let response = await db.saveUser(newUser);
 
     res.status(200).send(response);
 });
 
 app.get('/users/:id/wall', authenticate, async (req, res) => {
-    if (!isValidId(req.params.id)) 
+    if (!isValidId(req.params.id))
         return res.sendStatus(400);
     let posts = await db.getPostsByUser(req.params.id);
-    
+
     if (posts !== undefined) {
         res.status(200).send(posts);
     } else {
@@ -212,7 +212,7 @@ app.get('/users/:id', authenticate, async (req, res) => {
     const id = req.params.id
 
     if (isValidId(req.params.id)) {
-        const users = await schemes.User.findById(id).exec();
+        const users = await schemes.User.findById(id).select('-password').exec();
 
         if (users) {
             res.status(200).send(users);
@@ -230,10 +230,10 @@ app.get('/users', async (req, res) => {
     res.status(200).send(users);
 });
 
-// app.get('/delete', async (req, res) => {
-//     mongoose.connection.db.dropDatabase();
-//     res.sendStatus(200);
-// });
+app.get('/delete', async (req, res) => {
+    mongoose.connection.db.dropDatabase();
+    res.sendStatus(200);
+});
 
 function start_server(port, callback) {
     console.log('Starting server...');
