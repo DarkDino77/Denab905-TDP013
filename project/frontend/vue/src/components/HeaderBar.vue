@@ -33,6 +33,6 @@ function goToProfile() {
         <SearchButton class="mx-4  button-primary my-1" />
         <button @click="goToProfile" class="button-primary mx-4 my-1">Profile</button>
         <button @click="logout" class="button-primary mx-4 my-1">Logout</button>
-
+        
     </div>
 </template>

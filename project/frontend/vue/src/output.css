@@ -610,14 +610,14 @@ video {
   margin: 50px;
 }
 
+.mx-10 {
+  margin-left: 2.5rem;
+  margin-right: 2.5rem;
+}
+
 .mx-4 {
   margin-left: 1rem;
   margin-right: 1rem;
-}
-
-.mx-\[50px\] {
-  margin-left: 50px;
-  margin-right: 50px;
 }
 
 .mx-\[700px\] {
@@ -640,79 +640,9 @@ video {
   margin-bottom: 100px;
 }
 
-.mx-\[10000px\] {
-  margin-left: 10000px;
-  margin-right: 10000px;
-}
-
-.mx-\[px\] {
-  margin-left: px;
-  margin-right: px;
-}
-
-.mx-\[800px\] {
-  margin-left: 800px;
-  margin-right: 800px;
-}
-
-.mx-\[600px\] {
-  margin-left: 600px;
-  margin-right: 600px;
-}
-
-.mx-\[500px\] {
-  margin-left: 500px;
-  margin-right: 500px;
-}
-
-.mx-\[400px\] {
-  margin-left: 400px;
-  margin-right: 400px;
-}
-
-.mx-\[300px\] {
-  margin-left: 300px;
-  margin-right: 300px;
-}
-
-.mx-\[100px\] {
-  margin-left: 100px;
-  margin-right: 100px;
-}
-
-.mx-5 {
-  margin-left: 1.25rem;
-  margin-right: 1.25rem;
-}
-
-.mx-2 {
-  margin-left: 0.5rem;
-  margin-right: 0.5rem;
-}
-
-.mx-1 {
-  margin-left: 0.25rem;
-  margin-right: 0.25rem;
-}
-
-.mx-10 {
-  margin-left: 2.5rem;
-  margin-right: 2.5rem;
-}
-
-.mx-11 {
-  margin-left: 2.75rem;
-  margin-right: 2.75rem;
-}
-
-.mx-12 {
-  margin-left: 3rem;
-  margin-right: 3rem;
-}
-
-.mx-14 {
-  margin-left: 3.5rem;
-  margin-right: 3.5rem;
+.mx-\[50px\] {
+  margin-left: 50px;
+  margin-right: 50px;
 }
 
 .mb-5 {

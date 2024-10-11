@@ -1,5 +1,6 @@
 import * as store from './store.js';
 
+
 async function fetchUser(id) {
     const path = `http://localhost:8080/users/${id}`;
 

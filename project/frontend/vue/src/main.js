@@ -5,6 +5,7 @@ import Login from './components/Login.vue';
 import Profile from './components/Profile.vue';
 import Search from './components/Search.vue';
 import Wall from './components/Wall.vue';
+import Chat from './components/Chat.vue';
 import './output.css';
 
 import { createMemoryHistory, createRouter } from 'vue-router'
@@ -15,6 +16,7 @@ const routes = [
     { path: '/profile/:id', component: Profile, props: true },
     { path: '/search', component: Search },
     { path: '/wall/:id', component: Wall, props: true },
+    { path: '/chat/:id', component: Chat, props: true },
 ];
 
 const router = createRouter({

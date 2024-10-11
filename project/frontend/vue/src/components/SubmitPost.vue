@@ -40,6 +40,7 @@ function sendPost() {
             body: JSON.stringify(request)
         })
         .then(() => {
+            postModel.value = "";
             emit('newPost');
         });
 

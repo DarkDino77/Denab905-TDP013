@@ -35,7 +35,6 @@ authenticate();
 
 async function register() {
     const hashedPassword = await hashPassword(passwordModel.value);
-    console.log(hashedPassword);
 
     const request = {
         "name": "" + usernameModel.value,
@@ -55,7 +54,6 @@ async function register() {
 
 async function login() {
     const hashedPassword = await hashPassword(passwordModel.value);
-    console.log(hashedPassword);
     const request = {
         "name": "" + usernameModel.value,
         "password": "" + hashedPassword
@@ -86,7 +84,6 @@ async function login() {
 async function hashPassword(password)
 {
     const hashed = CryptoJS.SHA256(password).toString(CryptoJS.enc.Hex);
-    console.log(hashed);
     return hashed;
 }
 

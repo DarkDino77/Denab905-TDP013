@@ -11,6 +11,7 @@ import * as utils from '../utils.js';
 import Wall from './Wall.vue';
 import HeaderBar from './HeaderBar.vue';
 
+
 const router = useRouter();
 
 let friends = ref([]);
@@ -33,7 +34,8 @@ getFriends()
 
         <FriendRequestList @acceptedFriend="getFriends()" class="m-[50px] my-[100px]" />
 
-        <Wall :id=route.params.id class="w-full mx-10" />
+        <Wall :id=route.params.id class="w-full mx-10 mx-[50px]" />
         <FriendList :friends="friends" class=" m-[50px] my-[100px]" />
+        
     </div>
 </template>

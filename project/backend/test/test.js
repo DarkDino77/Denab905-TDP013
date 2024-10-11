@@ -465,7 +465,7 @@ describe('Registering multiple users', () => {
                     })
             });
     });
-    
+
     after((done) => {
         clear_server();
         server.close(() => done());
@@ -582,9 +582,9 @@ describe('Errors', (done) => {
 
     it('Trying to register account with parameters should return 400', (done) => {
         const request = {
-            "asdsas" : "öööööö"
+            "asdsas": "öööööö"
         };
-        
+
         superagent
             .post(`${api}/users`)
             .send(request)
@@ -638,6 +638,289 @@ describe('Errors', (done) => {
             .set("cookie", cookies[1])
             .end(async (err, res) => {
                 assert.equal(400, res.status);
+                done();
+            });
+    });
+
+
+    // Test invalid methods
+    it('Should return 405 for PUT on /login', (done) => {
+        superagent
+            .put(`${api}/login`)
+            .set("cookie", cookies[1])
+            .end((err, res) => {
+                assert.equal(405, res.status);
+                done();
+            });
+    });
+
+    it('Should return 405 for DELETE on /login', (done) => {
+        superagent
+            .delete(`${api}/login`)
+            .set("cookie", cookies[1])
+            .end((err, res) => {
+                assert.equal(405, res.status);
+                done();
+            });
+    });
+
+    it('Should return 405 for PATCH on /login', (done) => {
+        superagent
+            .patch(`${api}/login`)
+            .set("cookie", cookies[1])
+            .end((err, res) => {
+                assert.equal(405, res.status);
+                done();
+            });
+    });
+
+    it('Should return 405 for POST on /logout', (done) => {
+        superagent
+            .post(`${api}/logout`)
+            .set("cookie", cookies[1])
+            .end((err, res) => {
+                assert.equal(405, res.status);
+                done();
+            });
+    });
+
+    it('Should return 405 for PUT on /logout', (done) => {
+        superagent
+            .put(`${api}/logout`)
+            .set("cookie", cookies[1])
+            .end((err, res) => {
+                assert.equal(405, res.status);
+                done();
+            });
+    });
+
+    it('Should return 405 for DELETE on /logout', (done) => {
+        superagent
+            .delete(`${api}/logout`)
+            .set("cookie", cookies[1])
+            .end((err, res) => {
+                assert.equal(405, res.status);
+                done();
+            });
+    });
+
+    it('Should return 405 for PATCH on /logout', (done) => {
+        superagent
+            .patch(`${api}/logout`)
+            .set("cookie", cookies[1])
+            .end((err, res) => {
+                assert.equal(405, res.status);
+                done();
+            });
+    });
+
+    it('Should return 405 for POST on /auth', (done) => {
+        superagent
+            .post(`${api}/auth`)
+            .set("cookie", cookies[1])
+            .end((err, res) => {
+                assert.equal(405, res.status);
+                done();
+            });
+    });
+
+    it('Should return 405 for PUT on /auth', (done) => {
+        superagent
+            .put(`${api}/auth`)
+            .set("cookie", cookies[1])
+            .end((err, res) => {
+                assert.equal(405, res.status);
+                done();
+            });
+    });
+
+    it('Should return 405 for DELETE on /auth', (done) => {
+        superagent
+            .delete(`${api}/auth`)
+            .set("cookie", cookies[1])
+            .end((err, res) => {
+                assert.equal(405, res.status);
+                done();
+            });
+    });
+
+    it('Should return 405 for PATCH on /auth', (done) => {
+        superagent
+            .patch(`${api}/auth`)
+            .set("cookie", cookies[1])
+            .end((err, res) => {
+                assert.equal(405, res.status);
+                done();
+            });
+    });
+
+    it('Should return 405 for PUT on /users', (done) => {
+        superagent
+            .put(`${api}/users`)
+            .set("cookie", cookies[1])
+            .end((err, res) => {
+                assert.equal(405, res.status);
+                done();
+            });
+    });
+
+    it('Should return 405 for DELETE on /users', (done) => {
+        superagent
+            .delete(`${api}/users`)
+            .set("cookie", cookies[1])
+            .end((err, res) => {
+                assert.equal(405, res.status);
+                done();
+            });
+    });
+
+    it('Should return 405 for PATCH on /users', (done) => {
+        superagent
+            .patch(`${api}/users`)
+            .set("cookie", cookies[1])
+            .end((err, res) => {
+                assert.equal(405, res.status);
+                done();
+            });
+    });
+
+    it('Should return 405 for PUT on /users/:id/wall', (done) => {
+        superagent
+            .put(`${api}/users/123/wall`)
+            .set("cookie", cookies[1])
+            .end((err, res) => {
+                assert.equal(405, res.status);
+                done();
+            });
+    });
+
+    it('Should return 405 for DELETE on /users/:id/wall', (done) => {
+        superagent
+            .delete(`${api}/users/123/wall`)
+            .set("cookie", cookies[1])
+            .end((err, res) => {
+                assert.equal(405, res.status);
+                done();
+            });
+    });
+
+    it('Should return 405 for PATCH on /users/:id/wall', (done) => {
+        superagent
+            .patch(`${api}/users/123/wall`)
+            .set("cookie", cookies[1])
+            .end((err, res) => {
+                assert.equal(405, res.status);
+                done();
+            });
+    });
+
+    it('Should return 405 for POST on /friends', (done) => {
+        superagent
+            .post(`${api}/friends`)
+            .set("cookie", cookies[1])
+            .end((err, res) => {
+                assert.equal(405, res.status);
+                done();
+            });
+    });
+
+    it('Should return 405 for PUT on /friends', (done) => {
+        superagent
+            .put(`${api}/friends`)
+            .set("cookie", cookies[1])
+            .end((err, res) => {
+                assert.equal(405, res.status);
+                done();
+            });
+    });
+
+    it('Should return 405 for DELETE on /friends', (done) => {
+        superagent
+            .delete(`${api}/friends`)
+            .set("cookie", cookies[1])
+            .end((err, res) => {
+                assert.equal(405, res.status);
+                done();
+            });
+    });
+
+    it('Should return 405 for PATCH on /friends', (done) => {
+        superagent
+            .patch(`${api}/friends`)
+            .set("cookie", cookies[1])
+            .end((err, res) => {
+                assert.equal(405, res.status);
+                done();
+            });
+    });
+
+    it('Should return 405 for POST on /requests', (done) => {
+        superagent
+            .post(`${api}/requests`)
+            .set("cookie", cookies[1])
+            .end((err, res) => {
+                assert.equal(405, res.status);
+                done();
+            });
+    });
+
+    it('Should return 405 for PUT on /requests', (done) => {
+        superagent
+            .put(`${api}/requests`)
+            .set("cookie", cookies[1])
+            .end((err, res) => {
+                assert.equal(405, res.status);
+                done();
+            });
+    });
+
+    it('Should return 405 for DELETE on /requests', (done) => {
+        superagent
+            .delete(`${api}/requests`)
+            .set("cookie", cookies[1])
+            .end((err, res) => {
+                assert.equal(405, res.status);
+                done();
+            });
+    });
+
+    it('Should return 405 for PATCH on /requests', (done) => {
+        superagent
+            .patch(`${api}/requests`)
+            .set("cookie", cookies[1])
+            .end((err, res) => {
+                assert.equal(405, res.status);
+                done();
+            });
+    });
+
+    it('Should return 405 for DELETE on users/:id', (done) => {
+        superagent
+            .delete(`${api}/users/${ids[1]}`)
+            .set("cookie", cookies[1])
+            .end((err, res) => {
+                assert.equal(405, res.status);
+                done();
+            });
+    });
+
+    it('Should return 405 for DELETE on users/:id/friends', (done) => {
+        superagent
+            .delete(`${api}/users/${ids[1]}/friends`)
+            .set("cookie", cookies[1])
+            .end((err, res) => {
+                assert.equal(405, res.status);
+                done();
+            });
+    });
+
+    // Test invalid route
+    it('Should return 404 for random get ', (done) => {
+        superagent
+            .get(`${api}/asdasdasdsad`)
+            .set("cookie", cookies[1])
+            .end((err, res) => {
+                assert.equal(404, res.status);
                 done();
             });
     });

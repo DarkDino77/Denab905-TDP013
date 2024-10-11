@@ -71,14 +71,20 @@ async function acceptRequest(userAccepting, userAccepted) {
     user.friends.push(userAccepted);
     user.friendRequests.splice(index,1);
 
-    await user.save();
-
+    
     let acceptedUser = await schemes.User.findById(userAccepted);
     acceptedUser.friends.push(userAccepting.toString());
-
-    await acceptedUser.save();
-
     
+    const chat = new schemes.Chat({users: [ userAccepting.toString() , userAccepted ]});
+    await chat.save();
+    
+    acceptedUser.chats.push(chat._id);
+    user.chats.push(chat._id);
+
+    console.log(chat);
+    
+    await user.save();
+    await acceptedUser.save();
 
     return true;
 }
@@ -101,6 +107,18 @@ async function saveUser(user) {
     return user.save();
 }
 
+async function addMessageToChat(chatId, msg) {
+
+    const chat = await schemes.Chat.findById(chatId.id);
+    if (chat === null)
+        return null;
+    chat.posts.push(msg);
+
+    await chat.save();
+
+    return chat.users;
+}
+
 export { start_database, saveUser, findUser, getPostsByUser, postMessageToWall,
-    getFriendsOfUser, addFriend,acceptRequest
+    getFriendsOfUser, addFriend,acceptRequest, addMessageToChat
  };

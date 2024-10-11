@@ -6,11 +6,14 @@ import MongoStore from 'connect-mongo';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import CryptoJS from 'crypto-js';
+import { Server } from 'socket.io';
 
 const app = express();
 const port = 8080;
 
-//curl -H 'Content-Type: application/json' -d '{ "name": "dennis", "password": "mellon" }' http://localhost:8080/users -X POST;
+let server;
+let io;
+
 
 const corsOptions = {
     origin: ['http://127.0.0.1:5173', 'http://localhost:5173'],  // Allow both
@@ -18,6 +21,14 @@ const corsOptions = {
     allowedHeaders: ['Content-Type'],
     credentials: true
 };
+
+if (process.argv[1] === new URL(import.meta.url).pathname) {
+    server = start_server(port);
+    io = new Server(server, { cors: corsOptions });
+}
+
+//curl -H 'Content-Type: application/json' -d '{ "name": "dennis", "password": "mellon" }' http://localhost:8080/users -X POST;
+
 
 function isValidId(id) {
     return mongoose.isValidObjectId(id);
@@ -35,6 +46,7 @@ app.use(cors(corsOptions));
 app.use(express.json());
 
 await db.start_database();
+
 
 app.use(session({
     secret: 'bla',
@@ -115,9 +127,12 @@ app.post('/users', async (req, res) => {
 });
 
 app.get('/users/:id/wall', authenticate, async (req, res) => {
-    if (!isValidId(req.params.id))
+    const id = new schemes.ID({ id: req.params.id }).id;
+
+    if (!isValidId(id))
         return res.sendStatus(400);
-    let posts = await db.getPostsByUser(req.params.id);
+
+    let posts = await db.getPostsByUser(id);
 
     if (posts !== undefined) {
         res.status(200).send(posts);
@@ -139,7 +154,8 @@ app.get('/users/:id/wall', authenticate, async (req, res) => {
 */
 
 app.post('/users/:id/wall', authenticate, async (req, res) => {
-    if (!isValidId(req.params.id)) {
+    const id = new schemes.ID({ id: req.params.id }).id;
+    if (!isValidId(id)) {
         res.sendStatus(400);
         return;
     }
@@ -157,12 +173,12 @@ app.post('/users/:id/wall', authenticate, async (req, res) => {
         (obj) => obj.friends
     );
 
-    let indexfriends = friends.find((element) => element._id.toString() === req.params.id)
+    let indexfriends = friends.find((element) => element._id.toString() === id)
 
-    if (req.params.id !== req.session.userId.toString() && indexfriends === undefined) {
+    if (id !== req.session.userId.toString() && indexfriends === undefined) {
         res.sendStatus(401);
     } else {
-        await db.postMessageToWall(req.params.id, message);
+        await db.postMessageToWall(id, message);
 
         res.sendStatus(200);
     }
@@ -183,8 +199,10 @@ app.get('/requests', authenticate, async (req, res) => {
 });
 
 app.post('/users/:id/friends', authenticate, async (req, res) => {
-    if (isValidId(req.params.id) && req.session.userId.toString() !== req.params.id) {
-        const result = await db.addFriend(req.session.userId, req.params.id);
+    const id = new schemes.ID({ id: req.params.id }).id;
+
+    if (isValidId(id) && req.session.userId.toString() !== id) {
+        const result = await db.addFriend(req.session.userId, id);
         if (result)
             res.sendStatus(200);
         else
@@ -196,12 +214,14 @@ app.post('/users/:id/friends', authenticate, async (req, res) => {
 });
 
 app.patch('/users/:id/friends', authenticate, async (req, res) => {
-    if (!isValidId(req.params.id)) {
+    const id = new schemes.ID({ id: req.params.id }).id;
+
+    if (!isValidId(id)) {
         res.sendStatus(400);
         return;
     }
 
-    const result = await db.acceptRequest(req.session.userId, req.params.id);
+    const result = await db.acceptRequest(req.session.userId, id);
     if (result)
         res.sendStatus(200);
     else
@@ -209,9 +229,9 @@ app.patch('/users/:id/friends', authenticate, async (req, res) => {
 });
 
 app.get('/users/:id', authenticate, async (req, res) => {
-    const id = req.params.id
+    const id = new schemes.ID({ id: req.params.id }).id;
 
-    if (isValidId(req.params.id)) {
+    if (isValidId(id)) {
         const users = await schemes.User.findById(id).select('-password').exec();
 
         if (users) {
@@ -235,6 +255,47 @@ app.get('/delete', async (req, res) => {
     res.sendStatus(200);
 });
 
+
+app.all('/login', async (req, res) => {
+    res.sendStatus(405);
+});
+
+app.all('/logout', async (req, res) => {
+    res.sendStatus(405);
+});
+
+app.all('/auth', async (req, res) => {
+    res.sendStatus(405);
+});
+
+app.all('/users', async (req, res) => {
+    res.sendStatus(405);
+});
+
+app.all('/users/:id/wall', async (req, res) => {
+    res.sendStatus(405);
+});
+
+app.all('/friends', async (req, res) => {
+    res.sendStatus(405);
+});
+
+app.all('/requests', async (req, res) => {
+    res.sendStatus(405);
+});
+
+app.all('/users/:id/friends', async (req, res) => {
+    res.sendStatus(405);
+});
+
+app.all('/users/:id', async (req, res) => {
+    res.sendStatus(405);
+});
+
+app.use((req, res, next) => {
+    res.sendStatus(404);
+});
+
 function start_server(port, callback) {
     console.log('Starting server...');
     return app.listen(port, () => {
@@ -242,16 +303,104 @@ function start_server(port, callback) {
     });
 }
 
+io.engine.use(session({
+    secret: 'bla',
+    resave: false,
+    saveUninitialized: false,
+    store: MongoStore.create({
+        client: mongoose.connection.getClient(),
+        dbName: process.env.MONGO_DB_NAME,
+        collectionName: "sessions",
+        stringify: false,
+        autoRemove: "interval",
+        autoRemoveInterval: 1
+    }),
+    cookie: {
+        maxAge: 24 * 60 * 60 * 1000,
+        httpOnly: true,
+    }
+}));
+
+io.use((socket, next) => {
+    // You can access the Express `req` object using `socket.request`
+    const { session } = socket.request;
+
+    if (session.userId) {
+        socket.userId = session.userId;  // Pass user ID to the socket object
+        socket.name = session.name;
+        socket.chatId = socket.request._query.chatId;
+        return next();  // Allow the connection
+    } else {
+        return next(new Error("Authentication required"));
+    }
+
+});
+
+// io.on('connection', (socket) => {
+//     console.log("Connected:", socket.id, "User ID:", socket.userId, "User Name:", socket.userName);
+
+//     socket.on('message', (data) => {
+//         console.log("Received message:", data);
+//         // Handle message logic here
+//     });
+
+//     socket.on('disconnect', () => {
+//         console.log("User disconnected:", socket.id);
+//     });
+// });
+
+io.on('connection', async (socket) => {
+    console.log("Connection: " + socket.id);
+
+    const chatId = socket.chatId;
+    if (!isValidId(chatId)) 
+        return;
+
+    const chatLog = await schemes.Chat.findById(chatId);
+
+    socket.emit('joinedChat', chatLog.posts);
+
+    socket.on('send', async (msg) => {
+        //console.log("Send: " + msg);
+        const chatId = new schemes.ID({id: socket.chatId});
+        //console.log("ödäsaödlasköldkas");
+
+        if (!isValidId(chatId))
+            return;
+
+        const post = new schemes.Post(msg);
+        
+        let error = post.validateSync();
+
+        if (error) {
+            return;
+        }
+
+        const usersInChat = await db.addMessageToChat(chatId, post);
+        console.log("innan loop");
+        if (!usersInChat) {
+            return;
+        }
+
+        for (let [id, socket2] of io.of("/").sockets) {
+            const index = usersInChat.find((item) => {
+                return item.toString() === socket2.userId.toString();
+            });
+            
+            if (index !== undefined) {
+                socket2.emit('message', post);
+            }
+        }
+    });
+    //console.log(socket.request);
+});
+
 // async function close_server() {
 //     db.closeDatabase();
 // }
 
 async function clear_server() {
     await mongoose.connection.db.dropDatabase();
-}
-
-if (process.argv[1] === new URL(import.meta.url).pathname) {
-    start_server(port);
 }
 
 export { start_server, clear_server }

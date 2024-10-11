@@ -43,7 +43,7 @@ function acceptFriend(request) {
 </script>
 
 <template>
-    <div class="w-full text-stone-300 bg-navy rounded-xl m-16">
+    <div  class="w-full text-stone-300 bg-navy rounded-xl m-16">
         <div class="bg-sky-900 rounded-xl m-2 p-2">
             Friend requests
         </div>
