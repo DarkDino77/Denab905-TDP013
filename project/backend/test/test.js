@@ -4,6 +4,8 @@ import { start_server, clear_server } from '../app.js';
 import { Cookie } from 'express-session';
 import * as db from '../db.js';
 import mongoose from 'mongoose';
+import { io } from 'socket.io-client';
+import * as schemes from '../scheme.js';
 
 const port = 8080;
 let api = 'http://localhost:' + port;
@@ -403,7 +405,7 @@ describe('Registering multiple users', () => {
                 assert.notEqual(friendsOfFriendIndex, undefined);
 
                 const friendsOfSender = await db.getFriendsOfUser(senderId
-                  );
+                );
                 const friendsOfSenderIndex = friendsOfSender.find((item) => {
                     return item._id == friendId;
                 });
@@ -412,7 +414,7 @@ describe('Registering multiple users', () => {
 
                 // Check that the request is removed
                 const friendRequests = await db.getFriendReqstOfUser(friendId
-                    );
+                );
                 const requestIndex = friendRequests.find((item) => {
                     return item._id == senderId;
                 });
@@ -929,4 +931,101 @@ describe('Errors', (done) => {
         server.close(() => done());
     });
 
+});
+
+describe('Chat', (done) => {
+    let socketClient;
+
+    const usernames = ['elvin', 'dennis'];
+    let ids = [];
+    let cookies = [];
+    let chatId;
+
+    before((done) => {
+        // Start the server
+        server = start_server(port);
+
+
+        // Clear the server database and register several users
+        clear_server()
+            .then(async () => {
+                for (let i = 0; i < usernames.length; i++) {
+                    const request = {
+                        "name": usernames[i],
+                        "password": "a"
+                    };
+
+                    await superagent
+                        .post(`${api}/users`)
+                        .send(request)
+                        .then(async (createRes) => {
+                            ids.push(createRes.body._id);
+                            // Login
+                            await superagent
+                                .post(`${api}/login`)
+                                .send(request)
+                                .then((loginRes) => {
+                                    cookies.push(loginRes.headers['set-cookie'].pop().split(';')[0]);
+                                });
+                        });
+                }
+
+                await db.addFriend(ids[0], ids[1]);
+                await db.acceptRequest(ids[1], ids[0]);
+
+                const friendList = await db.getFriendsOfUser(ids[0]);
+                chatId = friendList[0].chat;
+            })
+            .then(() => done())
+            .catch((err) => done(err));
+    });
+
+    // beforeEach((done) => {
+
+
+    //     socketClient.on('joinedChat', () => {
+    //         console.log('Socket connected');
+    //         done();
+    //     });
+
+    //     socketClient.on('connect_error', (err) => {
+    //         console.error('Socket connection error:', err);
+    //         done(err);
+    //     });
+
+    //     socketClient.on('error', (err) => {
+    //         console.error('Socket error:', err);
+    //     });
+    // });
+
+
+    it('Users should be able to send messages to each other', (done) => {
+        socketClient = io(api, {
+            withCredentials: true,
+            transports: ['websocket'],
+            query: { "chatId": chatId }
+        });
+
+        const message = {
+            "author": usernames[0],
+            "message": "hej hej"
+        };
+
+        socketClient.on('connect', async () => {
+            console.log('Socket connected');
+            socketClient.emit('send', message);
+            const chat = await schemes.Chat.findById(chatId);
+            console.log(chat);
+            done();
+        });
+
+
+    });
+
+
+    after((done) => {
+        clear_server();
+        socketClient.disconnect();
+        server.close(() => done());
+    });
 });

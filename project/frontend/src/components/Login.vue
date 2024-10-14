@@ -34,6 +34,13 @@ async function authenticate() {
 authenticate();
 
 async function register() {
+    if(passwordModel.value === undefined){
+        return;
+    }
+
+    if(usernameModel.value === undefined){
+        return;
+    }
     const hashedPassword = await hashPassword(passwordModel.value);
 
     const request = {

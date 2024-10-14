@@ -606,13 +606,8 @@ video {
   margin: 0.5rem;
 }
 
-.m-\[50px\] {
-  margin: 50px;
-}
-
-.mx-10 {
-  margin-left: 2.5rem;
-  margin-right: 2.5rem;
+.m-\[1\%\] {
+  margin: 1%;
 }
 
 .mx-4 {
@@ -620,9 +615,14 @@ video {
   margin-right: 1rem;
 }
 
-.mx-\[50px\] {
-  margin-left: 50px;
-  margin-right: 50px;
+.mx-\[1\%\] {
+  margin-left: 1%;
+  margin-right: 1%;
+}
+
+.mx-\[30\%\] {
+  margin-left: 30%;
+  margin-right: 30%;
 }
 
 .mx-\[700px\] {
@@ -643,21 +643,6 @@ video {
 .my-\[100px\] {
   margin-top: 100px;
   margin-bottom: 100px;
-}
-
-.mx-\[px\] {
-  margin-left: px;
-  margin-right: px;
-}
-
-.mx-\[4px\] {
-  margin-left: 4px;
-  margin-right: 4px;
-}
-
-.mx-\[48px\] {
-  margin-left: 48px;
-  margin-right: 48px;
 }
 
 .mb-5 {

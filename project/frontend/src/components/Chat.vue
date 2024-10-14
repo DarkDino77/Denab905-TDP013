@@ -3,7 +3,7 @@
 import Posts from './Posts.vue';
 import SendMessage from './SendMessage.vue';
 import * as utils from '../utils.js';
-import { watch, ref } from 'vue';
+import { watch, ref ,onBeforeUnmount} from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { io } from 'socket.io-client';
 import * as store from '../store.js';
@@ -91,10 +91,14 @@ function sendChatMessage(msg) {
     socket.emit('send', request);
 }
 
+onBeforeUnmount(() => {
+    socket.disconnect();
+});
+
 </script>
 
 <template>
-    <div class="mx-[700px] bg-navy rounded-xl p-2">
+    <div class="mx-[30%] bg-navy rounded-xl p-2">
         <SendMessage @clickSend="(msg) => { sendChatMessage(msg) }" :id=route.params.id />
             <div v-if="messages">
             <Posts :postList=messages class="m-2"/>

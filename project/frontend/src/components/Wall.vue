@@ -30,7 +30,7 @@ async function fetchUser(id) {
 
 <template>
 
-    <div class="mx-[700px] bg-navy rounded-xl p-2"> 
+    <div class="mx-[30%] bg-navy rounded-xl p-2"> 
 
         <SubmitPost @newPost="fetchUser(user._id)" :id=user._id />
         <div v-if="user.posts">

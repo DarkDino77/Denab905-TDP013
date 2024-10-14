@@ -86,9 +86,6 @@ async function acceptRequest(userAccepting, userAccepted) {
         return false;
     }
 
-
-
-
     user.friendRequests.splice(index,1);
 
     

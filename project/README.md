@@ -1,33 +1,50 @@
 # README
-## Specfication
 
-We are using Specification 1 for our program.
-
-## install dependencies 
-To install all required dependencies, run the following command
-
-`$ npm install `
-
-This command will install all the packages listed in the package.json.
-
-## Start the mongo db server first before you run or test the server
-Start MongoDB:
-
-`sudo systemctl start mongod`
-
-### Test
+## Instructions
+Start the MongoDB service to ensure your database is running.
+```bash
+ sudo systemctl start mongod
+```
+Change to the directory where your backend code is located.
+```bash
+ cd backend
+```
+Install all the necessary Node.js packages specified in your package.json file.
+```bash
+ npm install
+```
 To run tests using Mocha, execute:
 
-`$ npm test` 
+```bash
+ npm test
+```
 
-This will initiate all the test cases defined in the test.js file.
+Run the backend server to begin handling requests.
+```bash
+ npm start
+```
+Open a separate terminal and navigate to the frontend directory. 
+```bash
+ cd frontend
+```
+Install all the necessary Node.js packages specified in your package.json file for the frontend.
+```bash
+ npm install
+```
+Run the frontend server to begin serving your application.
+```bash
+ npm run dev
+```
+Open another separate terminal and navigate to the frontend directory.
+```bash
+ cd frontend
+```
+Start the Tailwind CSS compiler to automatically generate your styles whenever changes are made to your CSS files.
+```bash
+ npx tailwindcss -i ./src/input.css -o ./src/output.css --watch
+```
+Open your web browser and go to http://localhost:5173 to view your application.
 
-### Run
-To start the program in development mode (using nodemon), run:
-
-`$ npm start` 
-
-Nodemon will automatically restart the application when any file changes.
 
 ## Install MongoDB on Linux (Ubuntu 22.04 Jammy)
 To install MongoDB on Ubuntu 22.04, follow these steps:
@@ -80,4 +97,3 @@ For detailed MongoDB installation instructions, refer to the official documentat
 
 https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-ubuntu/
 
-npx tailwindcss -i ./src/input.css -o ./src/output.css --watch
