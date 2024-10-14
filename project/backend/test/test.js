@@ -358,8 +358,7 @@ describe('Registering multiple users', () => {
                 if (err) return done(err);
 
                 assert.equal(res.status, 200);
-                const friendRequests = await db.getFriendsOfUser(friendId, 'friendRequests ',
-                    (obj) => obj.friendRequests);
+                const friendRequests = await db.getFriendReqstOfUser(friendId);
                 const index = friendRequests.find((item) => {
                     return item._id == senderId;
                 });
@@ -395,7 +394,7 @@ describe('Registering multiple users', () => {
                 assert.equal(res.status, 200);
 
 
-                const friends = await db.getFriendsOfUser(friendId, 'friends', (obj) => obj.friends);
+                const friends = await db.getFriendsOfUser(friendId);
                 const friendsOfFriendIndex = friends.find((item) => {
                     return item._id == senderId;
                 });
@@ -403,8 +402,8 @@ describe('Registering multiple users', () => {
 
                 assert.notEqual(friendsOfFriendIndex, undefined);
 
-                const friendsOfSender = await db.getFriendsOfUser(senderId, 'friends',
-                    (obj) => obj.friends);
+                const friendsOfSender = await db.getFriendsOfUser(senderId
+                  );
                 const friendsOfSenderIndex = friendsOfSender.find((item) => {
                     return item._id == friendId;
                 });
@@ -412,8 +411,8 @@ describe('Registering multiple users', () => {
                 assert.notEqual(friendsOfSenderIndex, undefined);
 
                 // Check that the request is removed
-                const friendRequests = await db.getFriendsOfUser(friendId, 'friendRequests',
-                    (obj) => obj.friendRequests);
+                const friendRequests = await db.getFriendReqstOfUser(friendId
+                    );
                 const requestIndex = friendRequests.find((item) => {
                     return item._id == senderId;
                 });

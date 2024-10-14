@@ -21,15 +21,34 @@ async function postMessageToWall(id, message) {
     await user.save();
 }
 
-async function getFriendsOfUser(id, search, lambda) {
-    let requests = await schemes.User.findById(id).select(search);
-    requests = lambda(requests)
+async function getFriendsOfUser(id) {
+    let requests = await schemes.User.findById(id).select("friends");
+
+    requests = requests.friends
+
+    let result = []
+    for (let i = 0; i < requests.length; i++) {
+        const reqName = await schemes.User.findById(requests[i].friend);
+
+        const reqIteam = {
+            _id: reqName._id.toString(),
+            name: reqName.name,
+            chat: requests[i].chat
+        }
+        result.push(reqIteam);
+    }
+    return result;
+}
+
+
+async function getFriendReqstOfUser(id) {
+    let requests = await schemes.User.findById(id).select("friendRequests");
+    requests = requests.friendRequests
     let result = []
     for (let i = 0; i < requests.length; i++) {
         const reqName = await schemes.User.findById(requests[i]).select('name');
         result.push(reqName);
     }
-
     return result;
 }
 
@@ -68,21 +87,19 @@ async function acceptRequest(userAccepting, userAccepted) {
     }
 
 
-    user.friends.push(userAccepted);
+
+
     user.friendRequests.splice(index,1);
 
     
     let acceptedUser = await schemes.User.findById(userAccepted);
-    acceptedUser.friends.push(userAccepting.toString());
     
     const chat = new schemes.Chat({users: [ userAccepting.toString() , userAccepted ]});
     await chat.save();
     
-    acceptedUser.chats.push(chat._id);
-    user.chats.push(chat._id);
 
-    console.log(chat);
-    
+    user.friends.push({friend: userAccepted.toString(), chat: chat._id.toString()});
+    acceptedUser.friends.push({friend: userAccepting.toString(), chat: chat._id.toString()});
     await user.save();
     await acceptedUser.save();
 
@@ -120,5 +137,5 @@ async function addMessageToChat(chatId, msg) {
 }
 
 export { start_database, saveUser, findUser, getPostsByUser, postMessageToWall,
-    getFriendsOfUser, addFriend,acceptRequest, addMessageToChat
+    getFriendsOfUser, addFriend,acceptRequest, addMessageToChat, getFriendReqstOfUser
  };

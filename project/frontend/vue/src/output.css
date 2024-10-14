@@ -620,6 +620,11 @@ video {
   margin-right: 1rem;
 }
 
+.mx-\[50px\] {
+  margin-left: 50px;
+  margin-right: 50px;
+}
+
 .mx-\[700px\] {
   margin-left: 700px;
   margin-right: 700px;
@@ -640,9 +645,19 @@ video {
   margin-bottom: 100px;
 }
 
-.mx-\[50px\] {
-  margin-left: 50px;
-  margin-right: 50px;
+.mx-\[px\] {
+  margin-left: px;
+  margin-right: px;
+}
+
+.mx-\[4px\] {
+  margin-left: 4px;
+  margin-right: 4px;
+}
+
+.mx-\[48px\] {
+  margin-left: 48px;
+  margin-right: 48px;
 }
 
 .mb-5 {

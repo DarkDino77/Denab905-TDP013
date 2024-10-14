@@ -6,7 +6,6 @@ const userSchema = new mongoose.Schema({
     posts: {type: Array},  // lista av Post-schemas
     friends: {type: Array}, // lista av idn
     friendRequests: {type:Array},
-    chats: {type:Array}
 });
 
 // TODO: kolla om vi faktiskt vill ha ett id på denna

@@ -11,9 +11,6 @@ import { Server } from 'socket.io';
 const app = express();
 const port = 8080;
 
-let server;
-let io;
-
 
 const corsOptions = {
     origin: ['http://127.0.0.1:5173', 'http://localhost:5173'],  // Allow both
@@ -22,10 +19,16 @@ const corsOptions = {
     credentials: true
 };
 
-if (process.argv[1] === new URL(import.meta.url).pathname) {
-    server = start_server(port);
-    io = new Server(server, { cors: corsOptions });
-}
+let server = app.listen(port);
+let io = new Server(server, { cors: corsOptions });
+
+
+
+
+// if (process.argv[1] === new URL(import.meta.url).pathname) {
+//     server = start_server(port);
+    
+// }
 
 //curl -H 'Content-Type: application/json' -d '{ "name": "dennis", "password": "mellon" }' http://localhost:8080/users -X POST;
 
@@ -192,7 +195,7 @@ app.get('/friends', authenticate, async (req, res) => {
 });
 
 app.get('/requests', authenticate, async (req, res) => {
-    let friends = await db.getFriendsOfUser(req.session.userId, 'friendRequests ',
+    let friends = await db.getFriendReqstOfUser(req.session.userId, 'friendRequests ',
         (obj) => obj.friendRequests
     );
     res.status(200).send(friends);
@@ -297,11 +300,13 @@ app.use((req, res, next) => {
 });
 
 function start_server(port, callback) {
-    console.log('Starting server...');
-    return app.listen(port, () => {
+    server.close();
+    server = app.listen(port, () => {
         callback && callback();
     });
+    return server;
 }
+
 
 io.engine.use(session({
     secret: 'bla',
@@ -322,78 +327,68 @@ io.engine.use(session({
 }));
 
 io.use((socket, next) => {
-    // You can access the Express `req` object using `socket.request`
-    const { session } = socket.request;
+// You can access the Express `req` object using `socket.request`
+const { session } = socket.request;
 
-    if (session.userId) {
-        socket.userId = session.userId;  // Pass user ID to the socket object
-        socket.name = session.name;
-        socket.chatId = socket.request._query.chatId;
-        return next();  // Allow the connection
-    } else {
-        return next(new Error("Authentication required"));
-    }
+if (session.userId) {
+    socket.userId = session.userId;  // Pass user ID to the socket object
+    socket.name = session.name;
+    socket.chatId = socket.request._query.chatId;
+    return next();  // Allow the connection
+} else {
+    return next(new Error("Authentication required"));
+}
 
 });
 
-// io.on('connection', (socket) => {
-//     console.log("Connected:", socket.id, "User ID:", socket.userId, "User Name:", socket.userName);
-
-//     socket.on('message', (data) => {
-//         console.log("Received message:", data);
-//         // Handle message logic here
-//     });
-
-//     socket.on('disconnect', () => {
-//         console.log("User disconnected:", socket.id);
-//     });
-// });
 
 io.on('connection', async (socket) => {
-    console.log("Connection: " + socket.id);
+console.log("Connection: " + socket.id);
 
-    const chatId = socket.chatId;
-    if (!isValidId(chatId)) 
+const chatId = socket.chatId;
+if (!isValidId(chatId)) 
+    return;
+
+const chatLog = await schemes.Chat.findById(chatId);
+
+socket.emit('joinedChat', chatLog.posts);
+
+socket.on('send', async (msg) => {
+    //console.log("Send: " + msg);
+    const chatId = new schemes.ID({id: socket.chatId});
+    //console.log("ödäsaödlasköldkas");
+
+    if (!isValidId(chatId))
         return;
 
-    const chatLog = await schemes.Chat.findById(chatId);
+    const post = new schemes.Post(msg);
+    
+    let error = post.validateSync();
 
-    socket.emit('joinedChat', chatLog.posts);
+    if (error) {
+        return;
+    }
 
-    socket.on('send', async (msg) => {
-        //console.log("Send: " + msg);
-        const chatId = new schemes.ID({id: socket.chatId});
-        //console.log("ödäsaödlasköldkas");
+    const usersInChat = await db.addMessageToChat(chatId, post);
+    console.log("innan loop");
+    if (!usersInChat) {
+        return;
+    }
 
-        if (!isValidId(chatId))
-            return;
-
-        const post = new schemes.Post(msg);
+    for (let [id, socket2] of io.of("/").sockets) {
+        const index = usersInChat.find((item) => {
+            return item.toString() === socket2.userId.toString();
+        });
         
-        let error = post.validateSync();
-
-        if (error) {
-            return;
+        if (index !== undefined) {
+            socket2.emit('message', post);
         }
-
-        const usersInChat = await db.addMessageToChat(chatId, post);
-        console.log("innan loop");
-        if (!usersInChat) {
-            return;
-        }
-
-        for (let [id, socket2] of io.of("/").sockets) {
-            const index = usersInChat.find((item) => {
-                return item.toString() === socket2.userId.toString();
-            });
-            
-            if (index !== undefined) {
-                socket2.emit('message', post);
-            }
-        }
-    });
-    //console.log(socket.request);
+    }
 });
+//console.log(socket.request);
+});
+
+
 
 // async function close_server() {
 //     db.closeDatabase();

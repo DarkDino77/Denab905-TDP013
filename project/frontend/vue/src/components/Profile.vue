@@ -34,7 +34,7 @@ getFriends()
 
         <FriendRequestList @acceptedFriend="getFriends()" class="m-[50px] my-[100px]" />
 
-        <Wall :id=route.params.id class="w-full mx-10 mx-[50px]" />
+        <Wall :id=route.params.id class="w-full mx-[48px]" />
         <FriendList :friends="friends" class=" m-[50px] my-[100px]" />
         
     </div>

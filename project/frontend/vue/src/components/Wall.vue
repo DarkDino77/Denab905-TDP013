@@ -24,14 +24,6 @@ async function fetchUser(id) {
     user.value = contents;
 }
 
-function goToChat() {
-  if (user.value && user.value.chats && user.value.chats.length > 0) {
-    console.log(user.value);
-    router.push('/chat/' + user.value.chats[0]);
-  } else {
-    console.log('User data or chats not available yet.');
-  }
-}
 
 
 </script>
@@ -39,7 +31,6 @@ function goToChat() {
 <template>
 
     <div class="mx-[700px] bg-navy rounded-xl p-2"> 
-     <button @click="goToChat()" class="button-primary">Chat</button>
 
         <SubmitPost @newPost="fetchUser(user._id)" :id=user._id />
         <div v-if="user.posts">

@@ -1,5 +1,8 @@
 <script setup>
 import UserButton from './UserButton.vue';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
 
 
 defineProps({
@@ -9,6 +12,12 @@ defineProps({
     }
 })
 
+function goToChat(id) {
+
+    router.push('/chat/' + id);
+
+}
+
 </script>
 
 <template>
@@ -17,9 +26,13 @@ defineProps({
             Friend List
         </div>
         <ul>
+            
             <li v-for="friend in friends">
-                <div class=" bg-sky-900 rounded-xl m-2 p-2">
+                <div class="flex flex-row bg-sky-900 rounded-xl m-2 p-2">
                     <UserButton :user="friend" />
+                    <div  class="flex-grow">
+                    <button @click="goToChat(friend.chat)" class="button-primary bg-green-600 hover:bg-green-400">Chat</button>
+                </div>
                 </div>
             </li>
         </ul>
