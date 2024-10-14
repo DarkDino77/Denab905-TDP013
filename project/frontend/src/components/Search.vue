@@ -26,9 +26,6 @@ async function fetchUsers() {
     if (response.status === 200) {
         const data = await response.json();
         users.value = data;
-        console.log(users.value)
-    } else {
-        console.log("error");
     }
 }
 
@@ -46,10 +43,7 @@ function sendRequest(id) {
             "Content-Type": "application/json"
         },
         credentials: 'include',
-    })
-        .then(() => {
-            console.log("Added friend");
-        });
+    });
 }
 
 

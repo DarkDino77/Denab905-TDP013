@@ -18,7 +18,6 @@ async function fetchRequests() {
 
     if (response.status === 200) {
         requests.value = await response.json();
-        console.log(requests);
     }
 }
 
@@ -34,7 +33,6 @@ function acceptFriend(request) {
         credentials: 'include',
     })
         .then(() => {
-            console.log("Accepted");
             emit('acceptedFriend');
             fetchRequests();
         })

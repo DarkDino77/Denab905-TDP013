@@ -69,12 +69,10 @@ const socket = io('http://localhost:8080',{
 });
 
 socket.on('joinedChat', (chatLog) => {
-    console.log(chatLog);
     messages.value = chatLog;
 });
 
 socket.on('message', (msg) => {
-    console.log(msg);
     messages.value.push(msg);
 })
 

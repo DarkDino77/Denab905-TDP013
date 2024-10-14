@@ -80,11 +80,7 @@ async function login() {
         const user = await result.json();
         userStore.setUser(user.id, user.name);
 
-        console.log("Successfully logged in");
-
         router.push("/profile/" + user.id);
-    } else {
-        console.log("Incorrect username/password");
     }
 }
 

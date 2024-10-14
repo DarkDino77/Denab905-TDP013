@@ -13,7 +13,6 @@ defineProps({
 const router = useRouter();
 
 function goToProfile(id) {
-    console.log("I wall " + id)
     router.push(`/wall/${id}`);
 }
 

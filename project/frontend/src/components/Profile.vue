@@ -25,8 +25,6 @@ async function getFriends() {
 
 getFriends()
 
-
-
 </script>
 
 <template>
@@ -34,7 +32,7 @@ getFriends()
 
         <FriendRequestList @acceptedFriend="getFriends()" class="m-[1%] my-[100px]" />
 
-        <Wall :id=route.params.id class="w-full mx-[1%]" />
+        <Wall :id=route.params.id class="w-full mx-[5%]" />
         <FriendList :friends="friends" class=" m-[1%] my-[100px]" />
         
     </div>

@@ -328,7 +328,6 @@ io.engine.use(session({
 
 io.use((socket, next) => {
     // You can access the Express `req` object using `socket.request`
-    console.log("Authentication")
     const { session } = socket.request;
 
     if (session.userId) {
@@ -355,9 +354,7 @@ io.on('connection', async (socket) => {
     socket.emit('joinedChat', chatLog.posts);
 
     socket.on('send', async (msg) => {
-        //console.log("Send: " + msg);
         const chatId = new schemes.ID({ id: socket.chatId });
-        //console.log("ödäsaödlasköldkas");
 
         if (!isValidId(chatId))
             return;
@@ -371,7 +368,6 @@ io.on('connection', async (socket) => {
         }
 
         const usersInChat = await db.addMessageToChat(chatId, post);
-        console.log("innan loop");
         if (!usersInChat) {
             return;
         }
@@ -386,7 +382,6 @@ io.on('connection', async (socket) => {
             }
         }
     });
-    //console.log(socket.request);
 });
 
 
