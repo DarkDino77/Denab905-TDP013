@@ -2,13 +2,14 @@
 
 import Posts from './Posts.vue';
 import SendMessage from './SendMessage.vue';
-import { onBeforeUnmount} from 'vue';
-import { useRoute } from 'vue-router';
+import { ref ,onBeforeUnmount} from 'vue';
+import { useRoute} from 'vue-router';
 import { io } from 'socket.io-client';
 import * as store from '../store.js';
 
 const route = useRoute();
 const userStore = store.loggedInUserStore();
+const messages = ref([]);
 
 
 const props = defineProps({

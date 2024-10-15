@@ -20,15 +20,14 @@ const corsOptions = {
 };
 
 let server = app.listen(port);
-let io = new Server(server, { cors: corsOptions });
+let io;
 
 
 
 
-// if (process.argv[1] === new URL(import.meta.url).pathname) {
-//     server = start_server(port);
-
-// }
+if (process.argv[1] === new URL(import.meta.url).pathname) {
+    server = start_server(port);
+}
 
 //curl -H 'Content-Type: application/json' -d '{ "name": "dennis", "password": "mellon" }' http://localhost:8080/users -X POST;
 
@@ -299,91 +298,95 @@ app.use((req, res, next) => {
     res.sendStatus(404);
 });
 
-function start_server(port, callback) {
-    server.close();
+async function start_server(port, callback) {
+    await close_server();
+    
     server = app.listen(port, () => {
         callback && callback();
     });
+
+    io = new Server(server, { cors: corsOptions });
+    io.engine.use(session({
+        secret: 'bla',
+        resave: false,
+        saveUninitialized: false,
+        store: MongoStore.create({
+            client: mongoose.connection.getClient(),
+            dbName: process.env.MONGO_DB_NAME,
+            collectionName: "sessions",
+            stringify: false,
+            autoRemove: "interval",
+            autoRemoveInterval: 1
+        }),
+        cookie: {
+            maxAge: 24 * 60 * 60 * 1000,
+            httpOnly: true,
+        }
+    }));
+    
+    io.use(async (socket, next) => {
+        const { session } = socket.request;
+    
+        if (session.userId === undefined) {
+            return next(new Error("Authentication required"));
+        }
+    
+        socket.userId = session.userId;  
+        socket.name = session.name;
+        socket.chatId = socket.request._query.chatId;
+    
+        if (await db.verifyUserInChat(socket.chatId, socket.userId) === false) {
+            return next(new Error("Authentication failed"));
+        }
+    
+        return next();  
+    
+    });
+    
+    
+    io.on('connection', async (socket) => {
+        console.log("Connection: " + socket.id);
+    
+        const chatId = socket.chatId;
+        if (!isValidId(chatId))
+            return;
+    
+        const chatLog = await schemes.Chat.findById(chatId);
+    
+        socket.emit('joinedChat', chatLog.posts);
+    
+        socket.on('send', async (msg) => {
+            const chatId = new schemes.ID({ id: socket.chatId });
+    
+            if (!isValidId(chatId.id))
+                return;
+    
+            const post = new schemes.Post(msg);
+    
+            let error = post.validateSync();
+    
+            if (error) {
+                return;
+            }
+    
+            await db.addMessageToChat(chatId, post);
+    
+            for (let [id, socket2] of io.of("/").sockets) {
+                if (socket2.chatId === chatId.id) {
+                    socket2.emit('message', post);
+                }
+            }
+        });
+    });
+
     return server;
 }
 
-
-io.engine.use(session({
-    secret: 'bla',
-    resave: false,
-    saveUninitialized: false,
-    store: MongoStore.create({
-        client: mongoose.connection.getClient(),
-        dbName: process.env.MONGO_DB_NAME,
-        collectionName: "sessions",
-        stringify: false,
-        autoRemove: "interval",
-        autoRemoveInterval: 1
-    }),
-    cookie: {
-        maxAge: 24 * 60 * 60 * 1000,
-        httpOnly: true,
-    }
-}));
-
-io.use((socket, next) => {
-    const { session } = socket.request;
-
-    if (session.userId === undefined) {
-        return next(new Error("Authentication required"));
-    }
-
-    socket.userId = session.userId;  
-    socket.name = session.name;
-    socket.chatId = socket.request._query.chatId;
-
-    if (!db.verifyUserInChat(socket.chatId, socket.userId)) {
-        return next(new Error("Authentication failed"));
-    }
-
-    return next();  
-
-});
-
-
-io.on('connection', async (socket) => {
-    console.log("Connection: " + socket.id);
-
-    const chatId = socket.chatId;
-    if (!isValidId(chatId))
-        return;
-
-    const chatLog = await schemes.Chat.findById(chatId);
-
-    socket.emit('joinedChat', chatLog.posts);
-
-    socket.on('send', async (msg) => {
-        const chatId = new schemes.ID({ id: socket.chatId });
-
-        if (!isValidId(chatId.id))
-            return;
-
-        const post = new schemes.Post(msg);
-
-        let error = post.validateSync();
-
-        if (error) {
-            return;
-        }
-
-        const usersInChat = await db.addMessageToChat(chatId, post);
-        if (!usersInChat) {
-            return;
-        }
-
-        for (let [id, socket2] of io.of("/").sockets) {
-            if (socket2.chatId === chatId.id) {
-                socket2.emit('message', post);
-            }
-        }
-    });
-});
-
+async function close_server() {
+    if (io)
+        await io.close();
+    server.close();
+}
 
 
 // async function close_server() {
@@ -394,4 +397,4 @@ async function clear_server() {
     await mongoose.connection.db.dropDatabase();
 }
 
-export { start_server, clear_server }
+export { start_server, clear_server, close_server }

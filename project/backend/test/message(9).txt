@@ -1,0 +1,137 @@
+import { ObjectId } from 'mongodb';
+import request from 'supertest';
+import { expect, use} from 'chai'; // Import expect from chai
+import chaiHttp from 'chai-http';
+import http from 'http';
+import { Server } from 'socket.io';
+import ioClient from 'socket.io-client';
+
+use(chaiHttp); // Use the chai-http plugin
+
+describe('WebSocket Server', () => {
+    let io, serverSocket, clientSocket1, clientSocket2, httpServer;
+
+    const allowedDomains = ['http://localhost:3000'];
+
+    before((done) => {
+        httpServer = http.createServer();
+        io = new Server(httpServer, {
+            cors: {
+                origin: allowedDomains,
+                methods: ['GET', 'POST'],
+            },
+        });
+
+        httpServer.listen(3001, () => {
+            console.log('Test server running on port 3001');
+            done();
+        });
+
+        io.on('connection', (socket) => {
+            const userId = socket.handshake.query.userId;
+        
+            if (userId) {
+                socket.join(userId);
+                socket.emit('connected', { message: 'You are connected!' });
+            }
+        
+            socket.on('sendMessage', (message) => {
+                io.to(message.roomId).emit('newMessage', message);
+            });
+        
+            socket.on('joinRoom', (roomId) => {
+                socket.join(roomId);
+                socket.emit('joinedRoom', { message: `You joined room ${roomId}` });
+            });
+        
+            socket.on('leaveRoom', (roomId) => {
+                socket.leave(roomId);
+            });
+        
+            socket.on('disconnect', (reason) => {
+                console.log(`User disconnected: ${socket.id}. Reason: ${reason}`);
+            });
+        });
+    });
+
+    after(() => {
+        io.close();
+        httpServer.close();
+    });
+
+    beforeEach((done) => {
+        // Setup a client to connect to the server before each test
+        clientSocket1 = ioClient.connect('http://localhost:3001', {
+            query: { userId: 'user1' },
+            transports: ['websocket'],
+        });
+
+        clientSocket1.on('connect', () => {
+            done();
+        });
+    });
+
+    afterEach(() => {
+        // Close the client connection after each test
+        if (clientSocket1.connected) {
+            clientSocket1.disconnect();
+        }
+        if (clientSocket2 && clientSocket2.connected) {
+            clientSocket2.disconnect();
+        }
+    });
+
+    it('should allow a user to connect and join a room', (done) => {
+        clientSocket1.on('connected', (data) => {
+            expect(data.message).to.equal('You are connected!');
+            done();
+        });
+    });
+
+    it('should allow a user to join a specific room', (done) => {
+        clientSocket1.emit('joinRoom', 'room1');
+        
+        clientSocket1.on('joinedRoom', (data) => {
+            expect(data.message).to.equal('You joined room room1');
+            done();
+        });
+    });
+
+    it('should broadcast messages within a room', (done) => {
+        // Set up a second client
+        clientSocket2 = ioClient.connect('http://localhost:3001', {
+            query: { userId: 'user2' },
+            transports: ['websocket'],
+        });
+
+        clientSocket2.on('connect', () => {
+            // Both clients join the same room
+            clientSocket1.emit('joinRoom', 'room1');
+            clientSocket2.emit('joinRoom', 'room1');
+
+            // Listen for new messages on the second client
+            clientSocket2.on('newMessage', (message) => {
+                expect(message).to.have.property('text', 'Hello from user1');
+                expect(message.roomId).to.equal('room1');
+                done();
+            });
+
+            // Send a message from the first client after a small delay
+            setTimeout(() => {
+                clientSocket1.emit('sendMessage', {
+                    roomId: 'room1',
+                    text: 'Hello from user1',
+                });
+            }, 100);
+        });
+    });
+
+    it('should handle user disconnection', (done) => {
+        clientSocket1.on('disconnect', () => {
+            console.log('Client 1 disconnected');
+            done();
+        });
+
+        clientSocket1.disconnect();
+    });
+});

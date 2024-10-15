@@ -124,17 +124,15 @@ async function saveUser(user) {
 async function addMessageToChat(chatId, msg) {
 
     const chat = await schemes.Chat.findById(chatId.id);
-    if (chat === null)
-        return null;
+
     chat.posts.push(msg);
 
     await chat.save();
 
-    return chat.users;
 }
 
 async function verifyUserInChat(chatId, userId) {
-    const chat = await schemes.Chat.findById(chatId.id);
+    const chat = await schemes.Chat.findById(chatId);
     if (chat === null)
         return false;
     const index = chat.users.find((item) => {

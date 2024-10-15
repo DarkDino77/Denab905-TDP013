@@ -1,6 +1,6 @@
 import assert from 'assert';
 import superagent from 'superagent';
-import { start_server, clear_server } from '../app.js';
+import { start_server, clear_server, close_server } from '../app.js';
 import { Cookie } from 'express-session';
 import * as db from '../db.js';
 import mongoose from 'mongoose';
@@ -234,8 +234,13 @@ describe('database api tests', () => {
     });
 
     after((done) => {
-        clear_server();
-        server.close(() => done());
+        clear_server()
+            .then(() => {
+                close_server()
+                    .then(() => {
+                        done();
+                    })
+            })
     });
 });
 
@@ -468,8 +473,13 @@ describe('Registering multiple users', () => {
     });
 
     after((done) => {
-        clear_server();
-        server.close(() => done());
+        clear_server()
+            .then(() => {
+                close_server()
+                    .then(() => {
+                        done();
+                    })
+            })
     });
 });
 
@@ -927,16 +937,19 @@ describe('Errors', (done) => {
     });
 
     after((done) => {
-        clear_server();
-        server.close(() => done());
+        clear_server()
+            .then(() => {
+                close_server()
+                    .then(() => {
+                        done();
+                    })
+            })
     });
 
 });
 
 describe('Chat', (done) => {
-    let socketClient;
-
-    const usernames = ['elvin', 'dennis'];
+    const usernames = ['elvin', 'dennis', 'charlie'];
     let ids = [];
     let cookies = [];
     let chatId;
@@ -975,6 +988,8 @@ describe('Chat', (done) => {
 
                 const friendList = await db.getFriendsOfUser(ids[0]);
                 chatId = friendList[0].chat;
+
+
             })
             .then(() => done())
             .catch((err) => done(err));
@@ -1000,32 +1015,119 @@ describe('Chat', (done) => {
 
 
     it('Users should be able to send messages to each other', (done) => {
-        socketClient = io(api, {
+        const cookie = cookies[0];
+        const socketClient = io('http://localhost:8080', {
+            withCredentials: true,
+            transports: ['websocket'],
+            extraHeaders: {
+                cookie: cookie
+            },
+            query: { "chatId": chatId }
+        });
+
+        const message = {
+            author: usernames[0],
+            message: "hej hej"
+        };
+
+        socketClient.on('connect', async () => {
+            console.log('Socket connected');
+
+            // Emit the message
+            socketClient.emit('send', message);
+        });
+
+        // Listen for messages sent to the chat
+        socketClient.on('message', async (receivedMessage) => {
+            // Fetch the chat from the database to ensure the message was stored
+            const chat = await schemes.Chat.findById(chatId);
+            console.log(chat.posts[0])
+            console.log(receivedMessage)
+
+            assert.equal(chat.posts[0].message, receivedMessage.message);
+            assert.equal(chat.posts[0].author, receivedMessage.author);
+
+            // Clean up and finish the test
+            done();
+        });
+
+        // Handle connection errors
+        socketClient.on('connect_error', (error) => {
+            console.error('Connection error:', error);
+            done(error);
+        });
+    });
+
+    it('Connecting without cookie should return error', (done) => {
+        const socketClient = io('http://localhost:8080', {
             withCredentials: true,
             transports: ['websocket'],
             query: { "chatId": chatId }
         });
 
+        socketClient.on('connect_error', (error) => {
+            assert.equal(error, "Error: Authentication required")
+            done();
+        });
+    });
+
+    it('Connecting as user that doesnt have access to chat should should return error', (done) => {
+        const socketClient = io('http://localhost:8080', {
+            withCredentials: true,
+            transports: ['websocket'],
+            extraHeaders: {
+                cookie: cookies[2]
+            },
+            query: { "chatId": chatId }
+        });
+
+        socketClient.on('connect_error', (error) => {
+            assert.equal(error, "Error: Authentication failed")
+            done();
+        });
+    });
+    it('Users should be able to send messages to each other', (done) => {
+        const cookie = cookies[0];
+        const socketClient = io('http://localhost:8080', {
+            withCredentials: true,
+            transports: ['websocket'],
+            extraHeaders: {
+                cookie: cookie
+            },
+            query: { "chatId": chatId }
+        });
+
         const message = {
-            "author": usernames[0],
-            "message": "hej hej"
+            author: usernames[0],
         };
 
         socketClient.on('connect', async () => {
             console.log('Socket connected');
+
+            // Emit the message
             socketClient.emit('send', message);
             const chat = await schemes.Chat.findById(chatId);
-            console.log(chat);
+            assert.equal(chat.posts.length , 1)
             done();
         });
 
+        // Listen for messages sent to the chat
 
+
+        // Handle connection errors
+        socketClient.on('connect_error', (error) => {
+            console.error('Connection error:', error);
+            done(error);
+        });
     });
 
-
     after((done) => {
-        clear_server();
-        socketClient.disconnect();
-        server.close(() => done());
+        clear_server()
+            .then(() => {
+                close_server()
+                    .then(() => {
+                        done();
+                    })
+            })
     });
 });
