@@ -75,7 +75,7 @@ function isFriendsWithUser(id) {
 
 <template>
 
-    <div class="flex flex-col justify-center content-center mx-[700px] bg-navy rounded-xl p-2">
+    <div class="flex flex-col justify-center content-center mx-[30%] bg-navy rounded-xl p-2">
         <textarea v-model="searchTermModel" placeholder="Search..." 
         class="resize-none rounded-xl p-1">
         </textarea>

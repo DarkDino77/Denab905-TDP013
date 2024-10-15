@@ -17,7 +17,7 @@ const props = defineProps({
 <template>
 
 <ul class="space-y-1">
-    <li v-for="post in postList">
+    <li v-for="post in postList.slice().reverse()">
     <Post :post=post />
 </li>
 </ul>

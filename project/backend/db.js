@@ -133,6 +133,20 @@ async function addMessageToChat(chatId, msg) {
     return chat.users;
 }
 
+async function verifyUserInChat(chatId, userId) {
+    const chat = await schemes.Chat.findById(chatId.id);
+    if (chat === null)
+        return false;
+    const index = chat.users.find((item) => {
+        return item.toString() === userId.toString();
+    });
+    if (index === undefined){
+        return false;
+    }
+    return true;
+
+}
+
 export { start_database, saveUser, findUser, getPostsByUser, postMessageToWall,
-    getFriendsOfUser, addFriend,acceptRequest, addMessageToChat, getFriendReqstOfUser
+    getFriendsOfUser, addFriend,acceptRequest, addMessageToChat, getFriendReqstOfUser, verifyUserInChat
  };

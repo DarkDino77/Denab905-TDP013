@@ -2,24 +2,14 @@
 
 import Posts from './Posts.vue';
 import SendMessage from './SendMessage.vue';
-import * as utils from '../utils.js';
-import { watch, ref ,onBeforeUnmount} from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { onBeforeUnmount} from 'vue';
+import { useRoute } from 'vue-router';
 import { io } from 'socket.io-client';
 import * as store from '../store.js';
 
-const router = useRouter();
 const route = useRoute();
-let user = ref('user');
 const userStore = store.loggedInUserStore();
-const messages = ref([]);
 
-{/*         <div v-if="user.posts">
-            <Posts :postList=user.posts class="m-2"/>
-        </div>
-        <div v-else>
-            <p>Loading</p>
-        </div> */}
 
 const props = defineProps({
     id: {
@@ -27,35 +17,6 @@ const props = defineProps({
         required: true
     }
 });
-
-function sendMessage() {
-    const trimmed = postModel.value.trim();
-    if (messageIsValid(trimmed)) {
-        errorModel.value = "";
-        
-        const request = {
-            "message": trimmed,
-            "author": userStore.getName()
-        };
-
-        fetch(`http://localhost:8080/users/${props.id}/wall`, {
-            method: "POST",
-            headers: {
-                "Accept": "application/json",
-                "Content-Type": "application/json"
-        },
-            credentials: 'include',
-            body: JSON.stringify(request)
-        })
-        .then(() => {
-            postModel.value = "";
-            emit('newPost');
-        });
-
-    } else {
-        errorModel.value = "Invalid message!";
-    }
-}
 
 function messageIsValid(message) {
     return message.length <= 140 &&

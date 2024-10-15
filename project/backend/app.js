@@ -327,17 +327,21 @@ io.engine.use(session({
 }));
 
 io.use((socket, next) => {
-    // You can access the Express `req` object using `socket.request`
     const { session } = socket.request;
 
-    if (session.userId) {
-        socket.userId = session.userId;  // Pass user ID to the socket object
-        socket.name = session.name;
-        socket.chatId = socket.request._query.chatId;
-        return next();  // Allow the connection
-    } else {
+    if (session.userId === undefined) {
         return next(new Error("Authentication required"));
     }
+
+    socket.userId = session.userId;  
+    socket.name = session.name;
+    socket.chatId = socket.request._query.chatId;
+
+    if (!db.verifyUserInChat(socket.chatId, socket.userId)) {
+        return next(new Error("Authentication failed"));
+    }
+
+    return next();  
 
 });
 
@@ -356,7 +360,7 @@ io.on('connection', async (socket) => {
     socket.on('send', async (msg) => {
         const chatId = new schemes.ID({ id: socket.chatId });
 
-        if (!isValidId(chatId))
+        if (!isValidId(chatId.id))
             return;
 
         const post = new schemes.Post(msg);
@@ -373,11 +377,7 @@ io.on('connection', async (socket) => {
         }
 
         for (let [id, socket2] of io.of("/").sockets) {
-            const index = usersInChat.find((item) => {
-                return item.toString() === socket2.userId.toString();
-            });
-
-            if (index !== undefined) {
+            if (socket2.chatId === chatId.id) {
                 socket2.emit('message', post);
             }
         }
